@@ -1,0 +1,128 @@
+[
+  {
+    "chunk_id": "test_001",
+    "metadata": {
+      "tags": [],
+      "sentiment": "neutral",
+      "sentiment_score": 0.8191667795181274,
+      "topic": "технологии",
+      "topic_scores": {
+        "технологии": 1,
+        "бизнес": 0,
+        "политика": 0,
+        "наука": 0,
+        "здоровье": 0,
+        "спорт": 0,
+        "экономика": 0,
+        "финансы": 0,
+        "недвижимость": 0
+      },
+      "topic_details": {
+        "технологии": {
+          "score": 1,
+          "matches": [
+            {
+              "keyword": "ai",
+              "count": 1
+            }
+          ],
+          "keyword_count": 1
+        }
+      },
+      "is_insider": false,
+      "insider_confidence": 0.0
+    }
+  },
+  {
+    "chunk_id": "test_002",
+    "metadata": {
+      "tags": [],
+      "sentiment": "neutral",
+      "sentiment_score": 0.7925154566764832,
+      "topic": "бизнес",
+      "topic_scores": {
+        "технологии": 0,
+        "бизнес": 2,
+        "политика": 0,
+        "наука": 0,
+        "здоровье": 0,
+        "спорт": 0,
+        "экономика": 0,
+        "финансы": 0,
+        "недвижимость": 0
+      },
+      "topic_details": {
+        "бизнес": {
+          "score": 2,
+          "matches": [
+            {
+              "keyword": "компани",
+              "count": 1
+            },
+            {
+              "keyword": "прибыл",
+              "count": 1
+            }
+          ],
+          "keyword_count": 2
+        }
+      },
+      "is_insider": true,
+      "insider_confidence": 1.0
+    }
+  },
+  {
+    "chunk_id": "test_003",
+    "metadata": {
+      "tags": [],
+      "sentiment": "neutral",
+      "sentiment_score": 0.8116405606269836,
+      "topic": "экономика",
+      "topic_scores": {
+        "технологии": 0,
+        "бизнес": 0,
+        "политика": 0,
+        "наука": 0,
+        "здоровье": 0,
+        "спорт": 0,
+        "экономика": 6,
+        "финансы": 0,
+        "недвижимость": 0
+      },
+      "topic_details": {
+        "экономика": {
+          "score": 6,
+          "matches": [
+            {
+              "keyword": "инфляци",
+              "count": 1
+            },
+            {
+              "keyword": "цен",
+              "count": 1
+            },
+            {
+              "keyword": "курс",
+              "count": 1
+            },
+            {
+              "keyword": "доллар",
+              "count": 1
+            },
+            {
+              "keyword": "рубл",
+              "count": 1
+            },
+            {
+              "keyword": "банк",
+              "count": 1
+            }
+          ],
+          "keyword_count": 6
+        }
+      },
+      "is_insider": false,
+      "insider_confidence": 0.0
+    }
+  }
+]

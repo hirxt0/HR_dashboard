@@ -140,9 +140,24 @@ def fetch_all_channels(
     return collected
 
 
+def messages_as_dicts(messages: Iterable[TelegramMessage]) -> List[dict]:
+    """Convert message objects to plain dicts for easy serialization."""
+    return [
+        {
+            "channel": m.channel,
+            "message_id": m.message_id,
+            "text": m.text,
+            "datetime": m.datetime,
+            "permalink": m.permalink,
+        }
+        for m in messages
+    ]
+
+
 if __name__ == "__main__":
     messages = fetch_all_channels(limit_per_channel=20)
-    for msg in messages:
-        preview = (msg.text[:120] + "...") if len(msg.text) > 120 else msg.text
-        print(f"[{msg.channel}] {msg.datetime} {msg.permalink or ''} :: {preview}")
+    dicts = messages_as_dicts(messages)
+    for entry in dicts:
+        preview = (entry["text"][:120] + "...") if len(entry["text"]) > 120 else entry["text"]
+        print(f"[{entry['channel']}] {entry['datetime']} {entry['permalink'] or ''} :: {preview}")
 

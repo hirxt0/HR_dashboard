@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>Metric Dashboard</h1>
+
+<canvas id="chart" width="800" height="300"></canvas>
+
+<script>
+fetch('/api/metrics/?name=cpu')
+    .then(r => r.json())
+    .then(data => {
+        const labels = data.map(x => x.timestamp);
+        const values = data.map(x => x.value);
+
+        new Chart(document.getElementById('chart'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'CPU',
+                    data: values,
+                    borderWidth: 1
+                }]
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

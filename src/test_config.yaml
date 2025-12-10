@@ -1,0 +1,26 @@
+data:
+  input_folder: "test_data"
+  rss_feeds: []
+
+embeddings:
+  model_name: "sentence-transformers/all-mpnet-base-v2"  # ← ТАКАЯ ЖЕ КАК В ОСНОВНОМ CONFIG!
+  chunk_size: 400
+  chunk_overlap: 100
+  batch_size: 8
+
+clustering:
+  algorithm: "dbscan"
+  hdbscan_min_cluster_size: 2
+  dbscan_eps: 0.3
+  dbscan_min_samples: 2
+
+llm:
+  mode: "mock"
+  provider: "gigachat"
+
+rag:
+  top_k: 3
+  min_score: 0.0
+
+output:
+  out_folder: "test_output"

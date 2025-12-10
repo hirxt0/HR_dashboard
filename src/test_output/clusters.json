@@ -1,0 +1,45 @@
+{
+  "-1": {
+    "name_short": "mocked response",
+    "name_long": "mocked response",
+    "size": 2,
+    "top_tags": [
+      "positive",
+      "neutral"
+    ],
+    "sentiment_summary": {
+      "positive": 1,
+      "neutral": 1,
+      "negative": 0
+    }
+  },
+  "0": {
+    "name_short": "mocked response",
+    "name_long": "mocked response",
+    "size": 5,
+    "top_tags": [
+      "positive",
+      "neutral",
+      "negative"
+    ],
+    "sentiment_summary": {
+      "positive": 2,
+      "neutral": 2,
+      "negative": 1
+    }
+  },
+  "1": {
+    "name_short": "mocked response",
+    "name_long": "mocked response",
+    "size": 2,
+    "top_tags": [
+      "negative",
+      "positive"
+    ],
+    "sentiment_summary": {
+      "positive": 1,
+      "neutral": 0,
+      "negative": 1
+    }
+  }
+}

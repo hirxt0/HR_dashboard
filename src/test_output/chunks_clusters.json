@@ -1,0 +1,92 @@
+[
+  {
+    "chunk_id": "doc_0.txt_chunk_0",
+    "cluster_id": -1,
+    "meta": {
+      "topic": "positive",
+      "sentiment": "positive",
+      "tags": "positive",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "doc_1.txt_chunk_0",
+    "cluster_id": 0,
+    "meta": {
+      "topic": "positive",
+      "sentiment": "positive",
+      "tags": "positive",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "doc_2.txt_chunk_0",
+    "cluster_id": 0,
+    "meta": {
+      "topic": "neutral",
+      "sentiment": "neutral",
+      "tags": "neutral",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "doc_3.txt_chunk_0",
+    "cluster_id": 1,
+    "meta": {
+      "topic": "negative",
+      "sentiment": "negative",
+      "tags": "negative",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "doc_4.txt_chunk_0",
+    "cluster_id": 1,
+    "meta": {
+      "topic": "positive",
+      "sentiment": "positive",
+      "tags": "positive",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "doc_5.txt_chunk_0",
+    "cluster_id": 0,
+    "meta": {
+      "topic": "neutral",
+      "sentiment": "neutral",
+      "tags": "neutral",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "news.csv_0_chunk_0",
+    "cluster_id": 0,
+    "meta": {
+      "topic": "positive",
+      "sentiment": "positive",
+      "tags": "positive",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "news.csv_1_chunk_0",
+    "cluster_id": -1,
+    "meta": {
+      "topic": "neutral",
+      "sentiment": "neutral",
+      "tags": "neutral",
+      "insight": "false"
+    }
+  },
+  {
+    "chunk_id": "news.csv_2_chunk_0",
+    "cluster_id": 0,
+    "meta": {
+      "topic": "negative",
+      "sentiment": "negative",
+      "tags": "negative",
+      "insight": "false"
+    }
+  }
+]

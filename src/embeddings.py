@@ -1,6 +1,6 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
-from sklearn.preprocessing import normalize
+
 
 class GetEmbeddings:
     def __init__(self, chunk_size=800, chunk_overlap=200, separators=None, model_name='sentence-transformers/all-mpnet-base-v2'):

@@ -1,31 +1,71 @@
 import os
 from dotenv import load_dotenv
 import json
+import time
 import numpy as np
 from run_pipeline import main
+from tg_parser import *
 
 load_dotenv()
 
 
-def create_test_data():
-    """Создаем тестовые данные для проверки"""
-    test_dir = "test_data"
+
+def create_test_data(use_telegram: bool = True, 
+                    max_messages: int = 40,
+                    test_dir: str = "test_data") -> None:
+    """
+    Создаем тестовые данные.
+    
+    Args:
+        use_telegram: Если True - использовать данные из Telegram, иначе - статические данные
+        max_messages: Максимальное количество сообщений для сбора
+        test_dir: Директория для сохранения тестовых данных
+    """
     os.makedirs(test_dir, exist_ok=True)
     
-    # 1. Создаем тестовые .txt файлы
-    test_texts = [
-        "Рынок IT в 2024 году показывает устойчивый рост. Крупные компании увеличивают инвестиции в AI.",
-        "Проблемы с логистикой продолжают влиять на ценообразование в розничной торговле.",
-        "Новый закон о налогообложении может повлиять на малый бизнес. Эксперты ожидают изменений.",
-        "Криптовалюты демонстрируют волатильность после последних заявлений регуляторов.",
-        "Зелёная энергетика получает поддержку государства. Инвестиции в солнечные панели растут.",
-        "В IT огромные проблемы"
-    ]
-    
-    for i, text in enumerate(test_texts):
-        with open(os.path.join(test_dir, f"doc_{i}.txt"), "w", encoding="utf-8") as f:
-            f.write(text)
-    
+    if use_telegram:
+        try:
+            print("Сбор данных из Telegram...")
+            messages = fetch_all_channels(limit_per_channel=max_messages//len(CHANNEL_URLS) + 10)
+            
+            # Фильтруем сообщения с достаточным текстом
+            filtered_messages = []
+            for msg in messages:
+                # Убираем слишком короткие сообщения и сообщения с преобладанием эмодзи/ссылок
+                text = msg.text.strip()
+                if len(text) > 50 and len(text.split()) > 5:
+                    # Проверяем, что текст содержит в основном слова (не только ссылки)
+                    words = [w for w in text.split() if not w.startswith(('http://', 'https://', '@', '#'))]
+                    if len(words) > 4:
+                        filtered_messages.append(msg)
+            
+            print(f"Найдено {len(filtered_messages)} подходящих сообщений")
+            
+            # Ограничиваем количество сообщений
+            messages_to_save = filtered_messages[:max_messages]
+            
+            if not messages_to_save:
+                print("Не удалось получить подходящие сообщения из Telegram, используем статические данные")
+                return
+            
+            for i, msg in enumerate(messages_to_save):
+                filename = os.path.join(test_dir, f"telegram_{msg.channel}_{i}.txt")
+                
+                # Формируем содержимое файла с метаданными
+                content = clean_telegram_text(msg.text)
+
+                with open(filename, "w", encoding="utf-8") as f:
+                    f.write(content)
+                
+                # Небольшая пауза, чтобы не перегружать сервер
+                if i % 5 == 0:
+                    time.sleep(0.1)
+            
+            print(f"Сохранено {len(messages_to_save)} сообщений в папку {test_dir}")
+            
+        except Exception as e:
+            print(f"Ошибка при сборе данных из Telegram: {e}")
+
     # 2. Создаем тестовый .csv файл
     import pandas as pd
     csv_data = {
@@ -105,20 +145,19 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
     from rag import RAG
     from utils import load_config
     
-    print("\n" + "="*60)
     print("RAG ТЕСТИРОВАНИЕ С РЕАЛЬНЫМИ ДАННЫМИ")
-    print("="*60)
+
     
-    # 0. Загружаем конфиг чтобы использовать ту же модель
+    # Загружаем конфиг чтобы использовать ту же модель
     cfg = load_config(config_path)
     
-    # 1. Загружаем чанки из пайплайна
-    print("\n📂 Загружаем данные из пайплайна...")
+    # Загружаем чанки из пайплайна
+    print("\n Загружаем данные из пайплайна...")
     chunks = load_chunks_from_output(output_folder)
     print(f"✓ Загружено {len(chunks)} чанков")
     
-    # 2. Инициализируем RAG
-    print("\n🔧 Инициализация RAG...")
+    # Инициализируем RAG
+    print("\n Инициализация RAG...")
     rag = RAG(cfg)
     
     # Загружаем существующий индекс
@@ -128,27 +167,24 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
     if os.path.exists(index_path):
         rag.load_index(index_path, map_path)
         rag.id_to_chunk = {i: chunks[i] for i in range(len(chunks))}
-        print("✓ FAISS индекс загружен")
+        print(" FAISS индекс загружен")
     else:
-        print("✗ Индекс не найден, создаём новый...")
+        print(" Индекс не найден, создаём новый...")
         rag.build_index(chunks, os.path.join(output_folder, "indices"))
     
-    # 3. Генерируем тестовые запросы из данных
+    # Генерируем тестовые запросы из данных
     print("\n🎲 Генерируем тестовые запросы из ваших данных...")
     test_queries = generate_test_queries_from_data(chunks, n=5)
     
-    # 4. Инициализируем embedder с той же моделью что и в конфиге
-    print(f"\n🤖 Загружаем модель: {cfg['embeddings']['model_name']}")
+    # Инициализируем embedder с той же моделью что и в конфиге
+    print(f"\n Загружаем модель: {cfg['embeddings']['model_name']}")
     emb_model = GetEmbeddings(
         chunk_size=cfg["embeddings"]["chunk_size"],
         chunk_overlap=cfg["embeddings"]["chunk_overlap"],
         model_name=cfg["embeddings"]["model_name"]
     )
     
-    # 5. Тестируем каждый запрос
-    print("\n" + "="*60)
     print("РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ")
-    print("="*60)
     
     total_tests = len(test_queries)
     passed_tests = 0
@@ -157,11 +193,9 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
         query = test['query']
         expected_chunk_id = test['expected_chunk_id']
         
-        print(f"\n{'─'*60}")
         print(f"ТЕСТ {i}/{total_tests}")
-        print(f"{'─'*60}")
-        print(f"📝 Запрос: {query}")
-        print(f"🎯 Ожидаемый чанк: {expected_chunk_id}")
+        print(f" Запрос: {query}")
+        print(f" Ожидаемый чанк: {expected_chunk_id}")
         
         # Получаем эмбеддинг запроса
         query_emb = emb_model.embedding([query])[0]
@@ -169,7 +203,7 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
         # Выполняем поиск
         results = rag.query(query_emb, top_k=3)
         
-        print(f"\n📊 Найдено результатов: {len(results)}")
+        print(f"\n Найдено результатов: {len(results)}")
         
         # Проверяем результаты
         found_expected = False
@@ -190,9 +224,9 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
         
         if found_expected:
             passed_tests += 1
-            print(f"\n✅ Тест {i} ПРОЙДЕН")
+            print(f"\n Тест {i} ПРОЙДЕН")
         else:
-            print(f"\n❌ Тест {i} НЕ ПРОЙДЕН (ожидаемый чанк не в топ-3)")
+            print(f"\n Тест {i} НЕ ПРОЙДЕН (ожидаемый чанк не в топ-3)")
     
     # 6. Итоговая статистика
     print("\n" + "="*60)
@@ -204,7 +238,7 @@ def test_rag_with_real_data(output_folder="test_output", config_path="test_confi
     print(f"Успешность: {(passed_tests/total_tests)*100:.1f}%")
     
     if passed_tests == total_tests:
-        print("\n🎉 ВСЕ ТЕСТЫ ПРОЙДЕНЫ!")
+        print("\n ВСЕ ТЕСТЫ ПРОЙДЕНЫ!")
     elif passed_tests >= total_tests * 0.6:
         print("\n✓ Результат приемлемый для хакатона")
     else:
@@ -246,10 +280,10 @@ def interactive_rag_test(output_folder="test_output", config_path="test_config.y
     )
     
     while True:
-        query = input("\n🔍 Ваш запрос: ").strip()
+        query = input("\n Ваш запрос: ").strip()
         
         if query.lower() in ['exit', 'quit', 'выход']:
-            print("👋 До свидания!")
+            print(" До свидания!")
             break
         
         if not query:
@@ -259,12 +293,10 @@ def interactive_rag_test(output_folder="test_output", config_path="test_config.y
         query_emb = emb_model.embedding([query])[0]
         results = rag.query(query_emb, top_k=5)
         
-        print(f"\n📊 Найдено {len(results)} результатов:\n")
+        print(f"\n Найдено {len(results)} результатов:\n")
         
         for i, r in enumerate(results, 1):
-            print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print(f"Результат #{i} (score: {r['score']:.4f})")
-            print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print(f"ID: {r['chunk']['chunk_id']}")
             print(f"Текст: {r['chunk']['text']}")
             print()
@@ -272,12 +304,10 @@ def interactive_rag_test(output_folder="test_output", config_path="test_config.y
 
 def main_test():
     """Основная функция тестирования"""
-    print("="*60)
     print("НАЧАЛО ТЕСТИРОВАНИЯ ПАЙПЛАЙНА")
-    print("="*60)
     
     # 1. Создаем тестовые данные
-    print("\n1️⃣ Создание тестовых данных...")
+    print("\n Создание тестовых данных...")
     test_dir = create_test_data()
     print(f"✓ Тестовые данные созданы в {test_dir}")
     
@@ -312,21 +342,21 @@ output:
     
     with open("test_config.yaml", "w", encoding="utf-8") as f:
         f.write(config_content)
-    print("✓ Конфигурация для тестов создана")
+    print(" Конфигурация для тестов создана")
     
     # 3. Запускаем пайплайн
-    print("\n2️⃣ Запуск пайплайна...")
+    print("\n Запуск пайплайна...")
     try:
         main("test_config.yaml")
-        print("✓ Пайплайн завершился успешно!")
+        print(" Пайплайн завершился успешно!")
     except Exception as e:
-        print(f"✗ Ошибка в пайплайне: {e}")
+        print(f" Ошибка в пайплайне: {e}")
         import traceback
         traceback.print_exc()
         return
     
     # 4. Проверяем результаты
-    print("\n3️⃣ Проверка выходных файлов...")
+    print("\n Проверка выходных файлов...")
     output_files = [
         "test_output/chunks.jsonl",
         "test_output/clusters.json",
@@ -336,46 +366,45 @@ output:
     
     for file in output_files:
         if os.path.exists(file):
-            print(f"✓ {file}")
+            print(f" {file}")
             if file.endswith(".json"):
                 try:
                     with open(file, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                    print(f"  └─ Записей: {len(data) if isinstance(data, list) else 'dict'}")
+                    print(f" Записей: {len(data) if isinstance(data, list) else 'dict'}")
                 except:
                     pass
         else:
-            print(f"✗ {file} не найден")
+            print(f" {file} не найден")
     
     # 5. Тестируем RAG с реальными данными
-    print("\n4️⃣ Тестирование RAG с реальными данными...")
+    print("\n Тестирование RAG с реальными данными...")
     try:
         test_rag_with_real_data("test_output", "test_config.yaml")  # ← Передаём путь к конфигу
     except Exception as e:
-        print(f"✗ Ошибка в RAG тесте: {e}")
+        print(f" Ошибка в RAG тесте: {e}")
         import traceback
         traceback.print_exc()
     
     # 6. Показываем кластеры
     clusters_file = "test_output/clusters.json"
     if os.path.exists(clusters_file):
-        print("\n5️⃣ Результаты кластеризации:")
+        print("\n Результаты кластеризации:")
         with open(clusters_file, "r", encoding="utf-8") as f:
             clusters = json.load(f)
         
         for cluster_id, info in clusters.items():
             if cluster_id != "-1":
-                print(f"\n🔸 Кластер {cluster_id}:")
+                print(f"\n Кластер {cluster_id}:")
                 print(f"   Название: {info.get('name_short', 'Н/Д')}")
                 print(f"   Размер: {info.get('size', 0)}")
                 print(f"   Теги: {', '.join(info.get('top_tags', []))}")
     
     # 7. Предложить интерактивный режим
-    print("\n" + "="*60)
     print("ТЕСТИРОВАНИЕ ЗАВЕРШЕНО")
-    print("="*60)
+
     
-    answer = input("\n💡 Хотите протестировать RAG в интерактивном режиме? (y/n): ")
+    answer = input("\n Хотите протестировать RAG в интерактивном режиме? (y/n): ")
     if answer.lower() in ['y', 'yes', 'д', 'да']:
         interactive_rag_test("test_output", "test_config.yaml")
 

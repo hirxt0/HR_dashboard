@@ -1,45 +1,112 @@
 {
   "-1": {
-    "name_short": "mocked response",
-    "name_long": "mocked response",
-    "size": 2,
-    "top_tags": [
-      "positive",
-      "neutral"
-    ],
-    "sentiment_summary": {
-      "positive": 1,
-      "neutral": 1,
-      "negative": 0
-    }
+    "name_short": "Шум / Разное",
+    "name_long": "Чанки, не попавшие ни в один кластер",
+    "size": 22,
+    "top_tags": []
   },
   "0": {
-    "name_short": "mocked response",
-    "name_long": "mocked response",
-    "size": 5,
+    "name_short": "Технологии: данных",
+    "name_long": "Кластер из 88 чанков по теме 'технологии'",
+    "size": 88,
     "top_tags": [
-      "positive",
-      "neutral",
-      "negative"
+      "данных",
+      "open",
+      "source",
+      "чтобы",
+      "excel"
     ],
-    "sentiment_summary": {
-      "positive": 2,
-      "neutral": 2,
-      "negative": 1
+    "main_category": "технологии",
+    "main_sentiment": "neutral",
+    "sentiment_distribution": {
+      "neutral": 73,
+      "positive": 8,
+      "negative": 7
     }
   },
   "1": {
-    "name_short": "mocked response",
-    "name_long": "mocked response",
+    "name_short": "Общее: комбо",
+    "name_long": "Кластер из 2 чанков по теме 'общее'",
     "size": 2,
     "top_tags": [
-      "negative",
-      "positive"
+      "комбо",
+      "профессии",
+      "поможет",
+      "освоить",
+      "инструменты"
     ],
-    "sentiment_summary": {
-      "positive": 1,
-      "neutral": 0,
-      "negative": 1
+    "main_category": "общее",
+    "main_sentiment": "neutral",
+    "sentiment_distribution": {
+      "neutral": 2
+    }
+  },
+  "2": {
+    "name_short": "Технологии: user",
+    "name_long": "Кластер из 2 чанков по теме 'технологии'",
+    "size": 2,
+    "top_tags": [
+      "user",
+      "item",
+      "watch",
+      "boolean",
+      "факт"
+    ],
+    "main_category": "технологии",
+    "main_sentiment": "negative",
+    "sentiment_distribution": {
+      "negative": 2
+    }
+  },
+  "3": {
+    "name_short": "Экономика: помощью",
+    "name_long": "Кластер из 2 чанков по теме 'экономика'",
+    "size": 2,
+    "top_tags": [
+      "помощью",
+      "методов",
+      "обучения",
+      "подкреплением",
+      "аналогичных"
+    ],
+    "main_category": "экономика",
+    "main_sentiment": "neutral",
+    "sentiment_distribution": {
+      "neutral": 2
+    }
+  },
+  "4": {
+    "name_short": "Общее: видео",
+    "name_long": "Кластер из 3 чанков по теме 'общее'",
+    "size": 3,
+    "top_tags": [
+      "видео",
+      "камеры",
+      "союз",
+      "мкс",
+      "сергей"
+    ],
+    "main_category": "общее",
+    "main_sentiment": "neutral",
+    "sentiment_distribution": {
+      "neutral": 3
+    }
+  },
+  "5": {
+    "name_short": "Экономика: cocoon",
+    "name_long": "Кластер из 2 чанков по теме 'экономика'",
+    "size": 2,
+    "top_tags": [
+      "cocoon",
+      "pavel",
+      "durov",
+      "запустил",
+      "первые"
+    ],
+    "main_category": "экономика",
+    "main_sentiment": "neutral",
+    "sentiment_distribution": {
+      "neutral": 2
     }
   }
 }

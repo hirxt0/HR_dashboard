@@ -1,201 +1,295 @@
+from metadata_processor import MetadataProcessorRU
+from tg_parser import TelegramDatabase
 from typing import List, Dict
-import json
 from tqdm import tqdm
-
-# Импортируем новый процессор метаданных
-try:
-    from metadata_processor import MetadataProcessorRU
-    METADATA_PROCESSOR_AVAILABLE = True
-except ImportError:
-    METADATA_PROCESSOR_AVAILABLE = False
-    print("⚠️ MetadataProcessorRU не найден, используем базовый классификатор")
+import json
 
 
-class Classifier:
+class MessageClassifier:
     """
-    Классификатор чанков с поддержкой продвинутой обработки метаданных
+    Классификатор сообщений с интеграцией БД
     """
     
-    def __init__(self, cfg, llm=None):
-        self.cfg = cfg
-        self.llm = llm
-        self.mode = cfg["llm"].get("mode", "mock")
+    def __init__(self, db_path: str = "telegram_data.db"):
+        self.db = TelegramDatabase(db_path)
         
-        # Инициализируем MetadataProcessorRU если доступен
-        self.metadata_processor = None
-        if METADATA_PROCESSOR_AVAILABLE:
-            try:
-                print(" Инициализация MetadataProcessorRU...")
-                self.metadata_processor = MetadataProcessorRU()
-                print(" MetadataProcessorRU готов к работе!")
-            except Exception as e:
-                print(f" Ошибка инициализации MetadataProcessorRU: {e}")
-                print("Переключаюсь на базовый классификатор")
-
-    def classify_chunks(self, chunks: List[Dict]) -> List[Dict]:
+        print(" Инициализация классификатора...")
+        self.processor = MetadataProcessorRU()
+        print(" Классификатор готов!\n")
+    
+    def process_message(self, message: Dict) -> Dict:
         """
-        Классифицирует список чанков, добавляя метаданные
+        Обработка одного сообщения
+        Возвращает метаданные
         """
-        print("КЛАССИФИКАЦИЯ ЧАНКОВ")
-        print(f"Режим: {'MetadataProcessorRU' if self.metadata_processor else 'Mock'}")
-        print(f"Количество чанков: {len(chunks)}")
-        print(f"{'='*60}\n")
+        # Используем очищенный текст если есть, иначе оригинальный
+        text = message.get('text_cleaned') or message.get('text', '')
         
-        if self.metadata_processor:
-            return self._classify_with_metadata_processor(chunks)
-        else:
-            return self._classify_mock(chunks)
-
-    def _classify_with_metadata_processor(self, chunks: List[Dict]) -> List[Dict]:
-        """
-        Классификация с использованием MetadataProcessorRU
-        """
-        batch_size = 50
-        results = []
+        if not text or len(text) < 20:
+            return self._get_empty_metadata()
         
-        for i in tqdm(range(0, len(chunks), batch_size), desc="Классификация"):
-            batch = chunks[i:i + batch_size]
+        try:
+            # Извлекаем теги
+            tags = self.processor.extract_tags(text, top_n=5)
             
-            for chunk in batch:
-                try:
-                    # Обрабатываем чанк через MetadataProcessorRU
-                    result = self.metadata_processor.process_chunk(
-                        chunk_id=chunk.get('chunk_id', f'chunk_{i}'),
-                        text=chunk['text']
-                    )
-                    
-                    # Добавляем метаданные к чанку
-                    chunk['meta'] = {
-                        'tags': result['metadata']['tags'],
-                        'sentiment': result['metadata']['sentiment'],
-                        'sentiment_score': result['metadata']['sentiment_score'],
-                        'category': result['metadata']['topic'],
-                        'topic_scores': result['metadata']['topic_scores'],
-                        'topic_details': result['metadata']['topic_details'],
-                        'is_insider': result['metadata']['is_insider'],
-                        'insider_confidence': result['metadata']['insider_confidence']
-                    }
-                    
-                    results.append(chunk)
-                    
-                except Exception as e:
-                    print(f" Ошибка обработки чанка {chunk.get('chunk_id')}: {e}")
-                    # Добавляем чанк без метаданных
-                    chunk['meta'] = self._get_fallback_meta()
-                    results.append(chunk)
-        
-        # Статистика
-        self._print_classification_stats(results)
-        
-        return results
-
-    def _classify_mock(self, chunks: List[Dict]) -> List[Dict]:
-        """
-        Mock-классификация (старый метод)
-        """
-        import random
-        
-        categories = ["технологии", "бизнес", "политика", "наука", "общее"]
-        sentiments = ["positive", "neutral", "negative"]
-        
-        for chunk in tqdm(chunks, desc="Mock классификация"):
-            chunk['meta'] = {
-                'category': random.choice(categories),
-                'tags': [f"tag_{i}" for i in range(3)],
-                'sentiment': random.choice(sentiments),
-                'sentiment_score': random.random(),
-                'is_insider': False,
-                'insider_confidence': 0.0
+            # Анализ тональности
+            sentiment_data = self.processor.analyze_sentiment(text)
+            
+            # Классификация темы
+            topic_analysis = self.processor.classify_topic(text, tags)
+            
+            # Детекция инсайдов
+            insider_data = self.processor.detect_insider(text)
+            
+            return {
+                'tags': tags,
+                'sentiment': sentiment_data['sentiment'],
+                'sentiment_score': sentiment_data['score'],
+                'category': topic_analysis['main_topic'],
+                'topic_scores': topic_analysis['scores'],
+                'topic_details': topic_analysis.get('details', {}),
+                'is_insider': insider_data['is_insider'],
+                'insider_confidence': insider_data['confidence']
             }
-        
-        return chunks
-
-    def _get_fallback_meta(self) -> Dict:
-        """
-        Метаданные по умолчанию при ошибке
-        """
+            
+        except Exception as e:
+            print(f" Ошибка обработки: {e}")
+            return self._get_empty_metadata()
+    
+    def _get_empty_metadata(self) -> Dict:
+        """Метаданные по умолчанию"""
         return {
-            'category': 'общее',
             'tags': [],
             'sentiment': 'neutral',
             'sentiment_score': 0.0,
+            'category': 'общее',
+            'topic_scores': {},
+            'topic_details': {},
             'is_insider': False,
             'insider_confidence': 0.0
         }
+    
+    def process_unprocessed_messages(self, batch_size: int = 50, limit: int = None):
+        """
+        Обработка всех необработанных сообщений из БД
+        """
+        print("КЛАССИФИКАЦИЯ СООБЩЕНИЙ")
 
-    def _print_classification_stats(self, chunks: List[Dict]):
-        """
-        Выводит статистику классификации
-        """
-        from collections import Counter
         
-        print("СТАТИСТИКА КЛАССИФИКАЦИИ")
+        # Получаем необработанные сообщения
+        messages = self.db.get_unprocessed_messages(limit=limit)
         
-        # Статистика по категориям
-        categories = [c['meta'].get('category', 'unknown') for c in chunks]
-        cat_counts = Counter(categories)
+        if not messages:
+            print("✅ Все сообщения уже обработаны!")
+            return
         
-        print("\n Распределение по категориям:")
-        for cat, count in cat_counts.most_common():
-            percentage = (count / len(chunks)) * 100
-            print(f"  • {cat:20s}: {count:3d} ({percentage:5.1f}%)")
+        print(f" Найдено необработанных сообщений: {len(messages)}")
+        print(f" Начинаем обработку...\n")
         
-        # Статистика по тональности
-        sentiments = [c['meta'].get('sentiment', 'unknown') for c in chunks]
-        sent_counts = Counter(sentiments)
+        processed_count = 0
+        error_count = 0
         
-        print("\n Распределение по тональности:")
-        for sent, count in sent_counts.most_common():
-            percentage = (count / len(chunks)) * 100
-            print(f"  • {sent:20s}: {count:3d} ({percentage:5.1f}%)")
-        
-        # Инсайдеры
-        insiders = [c for c in chunks if c['meta'].get('is_insider', False)]
-        if insiders:
-            print(f"\n Инсайдерская информация: {len(insiders)} чанков")
-            avg_confidence = sum(c['meta'].get('insider_confidence', 0) for c in insiders) / len(insiders)
-            print(f"  Средняя уверенность: {avg_confidence:.2%}")
-        
-        # Самые частые теги
+        # Статистика для отчёта
+        category_stats = {}
+        sentiment_stats = {'positive': 0, 'neutral': 0, 'negative': 0}
         all_tags = []
-        for c in chunks:
-            all_tags.extend(c['meta'].get('tags', []))
         
-        if all_tags:
-            tag_counts = Counter(all_tags)
-            print("\n Топ-10 тегов:")
-            for tag, count in tag_counts.most_common(10):
-                print(f"  • {tag:20s}: {count}")
+        for i in tqdm(range(0, len(messages), batch_size), desc="Обработка"):
+            batch = messages[i:i + batch_size]
+            
+            for message in batch:
+                try:
+                    # Классификация
+                    metadata = self.process_message(message)
+                    
+                    # Сохранение в БД
+                    self.db.insert_metadata(message['id'], metadata)
+                    
+                    # Статистика
+                    processed_count += 1
+                    category = metadata['category']
+                    category_stats[category] = category_stats.get(category, 0) + 1
+                    sentiment_stats[metadata['sentiment']] += 1
+                    all_tags.extend(metadata['tags'])
+                    
+                except Exception as e:
+                    error_count += 1
+                    print(f"\n Ошибка обработки сообщения {message['id']}: {e}")
         
-        print(f"\n{'='*60}\n")
-
-    def save_classification_report(self, chunks: List[Dict], output_path: str):
-        """
-        Сохраняет детальный отчёт классификации
-        """
+        # Итоговая статистика
+        self._print_processing_stats(
+            processed_count, 
+            error_count, 
+            category_stats, 
+            sentiment_stats, 
+            all_tags
+        )
+    
+    def _print_processing_stats(self, processed: int, errors: int, 
+                               categories: Dict, sentiments: Dict, tags: List):
+        """Вывод статистики обработки"""
         from collections import Counter
         
-        report = {
-            'total_chunks': len(chunks),
-            'categories': dict(Counter(c['meta'].get('category', 'unknown') for c in chunks)),
-            'sentiments': dict(Counter(c['meta'].get('sentiment', 'unknown') for c in chunks)),
-            'insider_count': len([c for c in chunks if c['meta'].get('is_insider', False)]),
-            'top_tags': dict(Counter([tag for c in chunks for tag in c['meta'].get('tags', [])]).most_common(20))
-        }
+        print("СТАТИСТИКА ОБРАБОТКИ")
+        
+        print(f"\n✅ Обработано: {processed}")
+        print(f" Ошибок: {errors}")
+        
+        # Категории
+        print(f"\n Распределение по категориям:")
+        for cat in sorted(categories.keys(), key=lambda x: categories[x], reverse=True):
+            count = categories[cat]
+            percentage = (count / processed) * 100 if processed > 0 else 0
+            print(f"  • {cat:20s}: {count:4d} ({percentage:5.1f}%)")
+        
+        # Тональность
+        print(f"\n Распределение по тональности:")
+        for sent, count in sentiments.items():
+            percentage = (count / processed) * 100 if processed > 0 else 0
+            print(f"  • {sent:20s}: {count:4d} ({percentage:5.1f}%)")
+        
+        # Топ теги
+        if tags:
+            tag_counts = Counter(tags)
+            print(f"\n Топ-15 тегов:")
+            for tag, count in tag_counts.most_common(15):
+                print(f"  • {tag:25s}: {count}")
+        
+    
+    def search_by_tags(self, query_tags: List[str], limit: int = 10) -> List[Dict]:
+        """
+        Поиск сообщений по тегам
+        Возвращает сообщения с метаданными
+        """
+        results = self.db.search_by_tags(query_tags, limit=limit)
+        
+        # Парсим JSON поля
+        for r in results:
+            try:
+                r['tags'] = json.loads(r['tags']) if r.get('tags') else []
+                r['topic_scores'] = json.loads(r['topic_scores']) if r.get('topic_scores') else {}
+            except:
+                pass
+        
+        return results
+    
+    def get_category_distribution(self) -> Dict:
+        """Статистика по категориям"""
+        cursor = self.db.conn.cursor()
+        cursor.execute('''
+            SELECT category, COUNT(*) as count
+            FROM message_metadata
+            WHERE category IS NOT NULL
+            GROUP BY category
+            ORDER BY count DESC
+        ''')
+        return {row[0]: row[1] for row in cursor.fetchall()}
+    
+    def get_sentiment_distribution(self) -> Dict:
+        """Статистика по тональности"""
+        cursor = self.db.conn.cursor()
+        cursor.execute('''
+            SELECT sentiment, COUNT(*) as count
+            FROM message_metadata
+            WHERE sentiment IS NOT NULL
+            GROUP BY sentiment
+            ORDER BY count DESC
+        ''')
+        return {row[0]: row[1] for row in cursor.fetchall()}
+    
+    def get_insider_messages(self, min_confidence: float = 0.5, limit: int = 20) -> List[Dict]:
+        """Получить инсайдерские сообщения"""
+        cursor = self.db.conn.cursor()
+        cursor.execute('''
+            SELECT m.*, mm.*
+            FROM messages m
+            JOIN message_metadata mm ON m.id = mm.message_id
+            WHERE mm.is_insider = 1 AND mm.insider_confidence >= ?
+            ORDER BY mm.insider_confidence DESC
+            LIMIT ?
+        ''', (min_confidence, limit))
+        
+        results = [dict(row) for row in cursor.fetchall()]
+        
+        # Парсим JSON
+        for r in results:
+            try:
+                r['tags'] = json.loads(r['tags']) if r.get('tags') else []
+            except:
+                pass
+        
+        return results
+    
+    def export_to_json(self, output_path: str, limit: int = None):
+        """Экспорт данных в JSON"""
+        cursor = self.db.conn.cursor()
+        
+        query = '''
+            SELECT m.*, mm.*
+            FROM messages m
+            JOIN message_metadata mm ON m.id = mm.message_id
+            ORDER BY m.datetime DESC
+        '''
+        
+        if limit:
+            query += f' LIMIT {limit}'
+        
+        cursor.execute(query)
+        results = [dict(row) for row in cursor.fetchall()]
+        
+        # Парсим JSON поля
+        for r in results:
+            try:
+                r['tags'] = json.loads(r['tags']) if r.get('tags') else []
+                r['topic_scores'] = json.loads(r['topic_scores']) if r.get('topic_scores') else {}
+            except:
+                pass
         
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, ensure_ascii=False, indent=2)
+            json.dump(results, f, ensure_ascii=False, indent=2)
         
-        print(f"📄 Отчёт классификации сохранён: {output_path}")
+        print(f" Данные экспортированы: {output_path}")
+    
+    def close(self):
+        """Закрытие соединения с БД"""
+        self.db.close()
 
 
-# Для обратной совместимости со старым кодом
-def classify_chunk_mock(chunk_text: str) -> Dict:
-    """Устаревшая функция, оставлена для совместимости"""
-    import random
-    categories = ["технологии", "бизнес", "политика", "наука", "общее"]
-    return {
-        'category': random.choice(categories),
-        'tags': [f"tag_{i}" for i in range(3)],
-        'sentiment': random.choice(["positive", "neutral", "negative"])
-    }
+# Пример использования
+if __name__ == "__main__":
+    classifier = MessageClassifier("telegram_data.db")
+    
+    # Обработка всех необработанных сообщений
+    classifier.process_unprocessed_messages(batch_size=50, limit=100)
+    
+    # Статистика
+    print("\n📊 ОБЩАЯ СТАТИСТИКА:")
+    print(f"\nКатегории:")
+    for cat, count in classifier.get_category_distribution().items():
+        print(f"  • {cat}: {count}")
+    
+    print(f"\nТональность:")
+    for sent, count in classifier.get_sentiment_distribution().items():
+        print(f"  • {sent}: {count}")
+    
+    # Поиск по тегам
+    print("\n🔍 ПОИСК ПО ТЕГАМ ['искусственный', 'интеллект']:")
+    results = classifier.search_by_tags(['искусственный', 'интеллект'], limit=3)
+    for r in results:
+        print(f"\n[{r['channel']}] {r['datetime']}")
+        print(f"Категория: {r['category']} | Тональность: {r['sentiment']}")
+        print(f"Теги: {', '.join(r['tags'][:5])}")
+        print(f"{r['text'][:150]}...")
+    
+    # Инсайды
+    insiders = classifier.get_insider_messages(min_confidence=0.5, limit=5)
+    if insiders:
+        print(f"\n🔒 ИНСАЙДЕРСКАЯ ИНФОРМАЦИЯ ({len(insiders)} сообщений):")
+        for ins in insiders:
+            print(f"\n[{ins['channel']}] Уверенность: {ins['insider_confidence']:.0%}")
+            print(f"{ins['text'][:150]}...")
+    
+    # Экспорт
+    classifier.export_to_json("classified_messages.json", limit=1000)
+    
+    classifier.close()

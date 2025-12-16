@@ -1,31 +1,143 @@
 :root {
-    --primary: #4361ee;
-    --secondary: #3a0ca3;
-    --success: #4cc9f0;
-    --danger: #f72585;
-    --warning: #f8961e;
-    --info: #7209b7;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --gray: #6c757d;
-    --light-gray: #e9ecef;
+    /* Основные цвета Сбербанка */
+    --sber-green: #21A038;
+    --sber-dark-green: #1A8030;
+    --sber-light-green: #4CAF50;
+    --sber-lime: #8BC34A;
+    --sber-blue: #2196F3;
+    --sber-dark-blue: #1976D2;
+    --sber-purple: #9C27B0;
+    --sber-orange: #FF9800;
+    --sber-red: #F44336;
+    
+    /* Системные цвета */
+    --primary: var(--sber-green);
+    --secondary: var(--sber-dark-green);
+    --success: var(--sber-light-green);
+    --danger: var(--sber-red);
+    --warning: var(--sber-orange);
+    --info: var(--sber-blue);
+    --light: #f5f5f5;
+    --dark: #333333;
+    --gray: #757575;
+    --light-gray: #e0e0e0;
+    
+    /* Темная тема */
+    --dark-bg: #1a1a1a;
+    --dark-card: #2d2d2d;
+    --dark-text: #ffffff;
+    --dark-border: #404040;
+    --dark-gray: #666666;
+    
+    /* Общие переменные */
     --border-radius: 12px;
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
     --transition: all 0.3s ease;
+}
+
+/* Светлая тема (по умолчанию) */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    line-height: 1.6;
+    transition: var(--transition);
+}
+
+/* Темная тема */
+body.dark-theme {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: var(--dark-text);
+}
+
+body.dark-theme .container {
+    background: transparent;
+}
+
+body.dark-theme .header,
+body.dark-theme .search-section,
+body.dark-theme .signals-section,
+body.dark-theme .results-section,
+body.dark-theme .tags-section,
+body.dark-theme .news-section,
+body.dark-theme .stat-card {
+    background: var(--dark-card);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .search-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .search-box input {
+    color: var(--dark-text);
+    background: transparent;
+}
+
+body.dark-theme .search-box input::placeholder {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .stat-card {
+    background: linear-gradient(135deg, var(--dark-card), rgba(45, 45, 45, 0.8));
+}
+
+body.dark-theme .news-item,
+body.dark-theme .signal-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text);
+}
+
+body.dark-theme .suggestions-container {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .suggestion-item {
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-theme .suggestion-item:hover {
+    background: rgba(33, 160, 56, 0.1);
+}
+
+body.dark-theme .placeholder i {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .loading {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .news-pagination {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .pagination-btn:disabled {
+    background: var(--dark-gray);
+}
+
+body.dark-theme .channel,
+body.dark-theme .date,
+body.dark-theme .news-stat {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-    color: var(--dark);
-    line-height: 1.6;
 }
 
 .container {
@@ -44,6 +156,8 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     margin-bottom: 25px;
+    transition: var(--transition);
+    border: 1px solid var(--light-gray);
 }
 
 .logo {
@@ -61,6 +175,23 @@ body {
     font-size: 24px;
     font-weight: 700;
     color: var(--dark);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark-theme .logo h1 {
+    background: linear-gradient(135deg, var(--sber-green), var(--sber-lime));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .user-info {
@@ -68,13 +199,83 @@ body {
     align-items: center;
     gap: 10px;
     padding: 8px 16px;
-    background: var(--light-gray);
+    background: linear-gradient(135deg, rgba(33, 160, 56, 0.1), rgba(76, 175, 80, 0.05));
     border-radius: 50px;
+    border: 1px solid rgba(33, 160, 56, 0.2);
 }
 
 .user-info i {
     font-size: 20px;
+    color: var(--primary);
+}
+
+/* Theme Toggle Switch */
+.theme-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.theme-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--light-gray), #cccccc);
+    transition: var(--transition);
+    border-radius: 30px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background: white;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+body.dark-theme .toggle-slider:before {
+    transform: translateX(30px);
+    background: var(--dark-card);
+}
+
+.theme-toggle input:checked + .toggle-slider {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
     color: var(--gray);
+    cursor: pointer;
+}
+
+.toggle-label i {
+    font-size: 18px;
+}
+
+.toggle-label .sun {
+    color: var(--warning);
+}
+
+.toggle-label .moon {
+    color: var(--sber-blue);
 }
 
 /* Search Section */
@@ -84,6 +285,8 @@ body {
     box-shadow: var(--shadow);
     padding: 25px;
     margin-bottom: 25px;
+    transition: var(--transition);
+    border: 1px solid var(--light-gray);
 }
 
 .search-box {
@@ -99,7 +302,7 @@ body {
 
 .search-box:focus-within {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    box-shadow: 0 0 0 3px rgba(33, 160, 56, 0.2);
 }
 
 .search-box i {
@@ -114,6 +317,7 @@ body {
     padding: 15px;
     font-size: 16px;
     outline: none;
+    color: var(--dark);
 }
 
 .btn-search {
@@ -133,7 +337,8 @@ body {
 
 .btn-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+    box-shadow: 0 6px 12px rgba(33, 160, 56, 0.3);
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
 }
 
 .search-stats {
@@ -151,6 +356,12 @@ body {
     gap: 15px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--light-gray);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(33, 160, 56, 0.1);
 }
 
 .stat-card i {
@@ -162,11 +373,20 @@ body {
     font-size: 28px;
     font-weight: 700;
     color: var(--dark);
+    margin-bottom: 5px;
 }
 
 .stat-card p {
     color: var(--gray);
     font-size: 14px;
+}
+
+body.dark-theme .stat-card h3 {
+    color: var(--dark-text);
+}
+
+body.dark-theme .stat-card p {
+    color: var(--dark-gray);
 }
 
 /* Main Content */
@@ -189,6 +409,8 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     overflow: hidden;
+    transition: var(--transition);
+    border: 1px solid var(--light-gray);
 }
 
 .section-header {
@@ -208,7 +430,7 @@ body {
 }
 
 .badge {
-    background: var(--danger);
+    background: rgba(255, 255, 255, 0.2);
     color: white;
     padding: 4px 12px;
     border-radius: 50px;
@@ -262,6 +484,10 @@ body {
     color: var(--dark);
 }
 
+body.dark-theme .signal-tag {
+    color: var(--dark-text);
+}
+
 .signal-type {
     padding: 4px 12px;
     border-radius: 50px;
@@ -271,17 +497,17 @@ body {
 }
 
 .signal-type.problem {
-    background: rgba(247, 37, 133, 0.1);
+    background: rgba(244, 67, 54, 0.1);
     color: var(--danger);
 }
 
 .signal-type.opportunity {
-    background: rgba(76, 201, 240, 0.1);
+    background: rgba(76, 175, 80, 0.1);
     color: var(--success);
 }
 
 .signal-type.early_trend {
-    background: rgba(248, 150, 30, 0.1);
+    background: rgba(255, 152, 0, 0.1);
     color: var(--warning);
 }
 
@@ -296,10 +522,19 @@ body {
     align-items: center;
     gap: 5px;
     font-size: 14px;
+    color: var(--gray);
+}
+
+body.dark-theme .stat {
+    color: var(--dark-gray);
 }
 
 .stat i {
     color: var(--gray);
+}
+
+body.dark-theme .stat i {
+    color: var(--dark-gray);
 }
 
 /* Results */
@@ -315,6 +550,7 @@ body {
 .news-item:hover {
     border-color: var(--primary);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
 }
 
 .news-header {
@@ -330,17 +566,27 @@ body {
     gap: 8px;
     color: var(--primary);
     font-weight: 600;
+    background: rgba(33, 160, 56, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
 }
 
 .date {
     color: var(--gray);
     font-size: 14px;
+    background: var(--light);
+    padding: 4px 10px;
+    border-radius: 15px;
 }
 
 .news-text {
     color: var(--dark);
     margin-bottom: 15px;
     line-height: 1.5;
+}
+
+body.dark-theme .news-text {
+    color: var(--dark-text);
 }
 
 .news-tags {
@@ -356,6 +602,12 @@ body {
     border-radius: 50px;
     font-size: 12px;
     font-weight: 500;
+    transition: var(--transition);
+}
+
+.tag:hover {
+    background: rgba(33, 160, 56, 0.1);
+    color: var(--primary);
 }
 
 .placeholder {
@@ -388,6 +640,8 @@ body {
     box-shadow: var(--shadow);
     padding: 25px;
     margin-bottom: 25px;
+    transition: var(--transition);
+    border: 1px solid var(--light-gray);
 }
 
 .tags-cloud {
@@ -405,96 +659,217 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
+    position: relative;
+    overflow: hidden;
 }
 
 .tag-cloud:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    box-shadow: 0 5px 15px rgba(33, 160, 56, 0.3);
 }
 
-/* Footer */
-.footer {
-    text-align: center;
-    padding: 20px;
-    color: var(--gray);
-    font-size: 14px;
-}
-
-.hint {
-    font-size: 12px;
-    margin-top: 5px;
-    opacity: 0.7;
-}
-
-/* Добавить в конец styles.css */
-
-/* Стили для автодополнения */
-.suggestions-container {
-    position: absolute;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    z-index: 1000;
-    margin-top: 5px;
-    border: 1px solid var(--light-gray);
-}
-
-.suggestion-item {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.2s;
-}
-
-.suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.suggestion-item:hover {
-    background: var(--light);
-}
-
-.suggestion-item strong {
-    color: var(--dark);
+/* Счетчик в облаке тегов */
+.tag-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
     font-weight: 600;
 }
 
-.suggestion-item small {
-    color: var(--gray);
-    font-size: 11px;
+/* Секция новостей */
+.news-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-top: 25px;
+    grid-column: 1 / -1;
+    transition: var(--transition);
+    border: 1px solid var(--light-gray);
 }
 
-/* Подсветка найденного тега */
-.tag-highlight {
+.news-container {
+    padding: 20px;
+    min-height: 400px;
+}
+
+.news-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.news-controls #news-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Элементы новостей в секции новостей */
+.news-container .news-item {
+    background: var(--light);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid var(--light-gray);
+    transition: var(--transition);
+}
+
+.news-container .news-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.news-container .news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.news-container .channel-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.news-container .channel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-weight: 600;
+    background: rgba(33, 160, 56, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.news-container .sentiment-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.news-container .date {
+    color: var(--gray);
+    font-size: 14px;
+    background: var(--light);
+    padding: 4px 10px;
+    border-radius: 15px;
+}
+
+.news-container .news-text {
+    color: var(--dark);
+    margin-bottom: 15px;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.news-container .news-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--light-gray);
+    font-size: 12px;
+    color: var(--gray);
+}
+
+.news-container .news-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.news-container .news-stat.clickable {
+    cursor: pointer;
+    color: var(--primary);
+    transition: var(--transition);
+}
+
+.news-container .news-stat.clickable:hover {
+    color: var(--secondary);
+}
+
+/* Пагинация новостей */
+.news-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: var(--light);
+    border-top: 1px solid var(--light-gray);
+    transition: var(--transition);
+}
+
+.pagination-btn {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    min-width: 100px;
+    justify-content: center;
 }
 
-/* Анимация загрузки */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.pagination-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 160, 56, 0.3);
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
 }
 
-.fa-spin {
-    animation: spin 1s linear infinite;
+.pagination-btn:disabled {
+    background: var(--gray);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
 }
 
-/* Адаптивность для автодополнения */
-@media (max-width: 768px) {
-    .suggestions-container {
-        position: fixed;
-        width: 90vw !important;
-        left: 50%;
-        transform: translateX(-50%);
-    }
+.pagination-btn:disabled:hover {
+    background: var(--gray);
+    transform: none;
+    box-shadow: none;
 }
 
-/* Добавить в конец styles.css */
+.page-info {
+    color: var(--dark);
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 120px;
+    text-align: center;
+}
+
+body.dark-theme .page-info {
+    color: var(--dark-text);
+}
+
+.page-info span {
+    font-weight: 700;
+    color: var(--primary);
+}
 
 /* Стили для автодополнения */
 .suggestions-container {
@@ -539,7 +914,7 @@ body {
 }
 
 .suggestion-item:hover {
-    background: linear-gradient(90deg, rgba(67, 97, 238, 0.08), rgba(58, 12, 163, 0.04));
+    background: linear-gradient(90deg, rgba(33, 160, 56, 0.08), rgba(26, 128, 48, 0.04));
     padding-left: 20px;
 }
 
@@ -586,7 +961,7 @@ body {
 }
 
 .similarity {
-    background: rgba(76, 201, 240, 0.1);
+    background: rgba(76, 175, 80, 0.1);
     color: var(--success);
     padding: 2px 6px;
     border-radius: 4px;
@@ -640,7 +1015,7 @@ body {
 .tag-highlight {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white !important;
-    box-shadow: 0 3px 10px rgba(67, 97, 238, 0.25);
+    box-shadow: 0 3px 10px rgba(33, 160, 56, 0.25);
     transform: translateY(-1px);
     border: none !important;
 }
@@ -655,8 +1030,46 @@ body {
     animation: spin 1s linear infinite;
 }
 
-/* Адаптивность для автодополнения */
+/* Адаптивность */
 @media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .pagination-btn {
+        width: 100%;
+    }
+    
+    .page-info {
+        order: -1;
+    }
+    
+    .news-container .news-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .news-container .channel-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .header-controls {
+        width: 100%;
+        justify-content: center;
+    }
+    
     .suggestions-container {
         position: fixed !important;
         width: calc(100vw - 40px) !important;
@@ -666,32 +1079,432 @@ body {
         max-height: 200px;
         box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.15);
     }
-    
-    .suggestion-item {
-        padding: 16px 20px;
-        min-height: 56px;
+}
+
+/* Анимация появления новостей */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    
-    .suggestion-tag {
-        font-size: 16px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Полоса прокрутки для автодополнения */
-.suggestions-container::-webkit-scrollbar {
-    width: 6px;
+.news-container .news-item {
+    animation: slideIn 0.3s ease-out;
 }
 
-.suggestions-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 3px;
+.news-container .news-item:nth-child(1) { animation-delay: 0.1s; }
+.news-container .news-item:nth-child(2) { animation-delay: 0.2s; }
+.news-container .news-item:nth-child(3) { animation-delay: 0.3s; }
+.news-container .news-item:nth-child(4) { animation-delay: 0.4s; }
+.news-container .news-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Полоса прокрутки */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-.suggestions-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
 }
 
-.suggestions-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+body.dark-theme ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: var(--sber-green);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--sber-light-green);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--gray);
+    font-size: 14px;
+    margin-top: 30px;
+    border-top: 1px solid var(--light-gray);
+}
+
+body.dark-theme .footer {
+    color: var(--dark-gray);
+    border-color: var(--dark-border);
+}
+
+.hint {
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: 0.7;
+}
+
+/* ... предыдущий код ... */
+
+/* Исправления для темной темы */
+
+/* Текст в подсказках в темной теме */
+body.dark-theme .suggestions-container {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .suggestion-item {
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-theme .suggestion-tag {
+    color: var(--dark-text);
+}
+
+body.dark-theme .suggestion-tag.exact-match {
+    color: var(--sber-green);
+}
+
+body.dark-theme .suggestion-tag.exact-match::before {
+    background: var(--sber-green);
+}
+
+body.dark-theme .suggestion-meta {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .suggestion-item:hover {
+    background: rgba(33, 160, 56, 0.1);
+    color: var(--dark-text);
+}
+
+/* Информация о поиске в темной теме */
+body.dark-theme .search-info {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-theme .search-info h3 {
+    color: var(--dark-text);
+}
+
+body.dark-theme .search-info p {
+    color: var(--dark-gray);
+}
+
+/* Поле поиска в темной теме - текст белый */
+body.dark-theme .search-box input {
+    color: var(--dark-text);
+}
+
+body.dark-theme .search-box input::placeholder {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .search-box i {
+    color: var(--dark-gray);
+}
+
+/* Подсказки и статистика в темной теме */
+body.dark-theme .hint {
+    color: var(--dark-gray);
+}
+
+/* Статистические карточки в темной теме */
+body.dark-theme .stat-card i {
+    color: var(--sber-green);
+}
+
+/* Секция тегов в темной теме */
+body.dark-theme .tags-section {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+/* Результаты поиска в темной теме */
+body.dark-theme .results-section {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+/* Новостные элементы в темной теме */
+body.dark-theme .news-text {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark-theme .news-container .news-text {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Каналы и даты в темной теме */
+body.dark-theme .channel {
+    background: rgba(33, 160, 56, 0.15);
+    color: var(--sber-green);
+}
+
+body.dark-theme .date {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--dark-gray);
+}
+
+/* Иконки настроения в темной теме */
+body.dark-theme .news-container .channel i,
+body.dark-theme .news-container .channel span {
+    color: var(--sber-green);
+}
+
+/* Пагинация в темной теме */
+body.dark-theme .news-pagination {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--dark-border);
+}
+
+/* Кнопки в темной теме */
+body.dark-theme .btn-search {
+    background: linear-gradient(135deg, var(--sber-green), var(--sber-dark-green));
+}
+
+body.dark-theme .btn-search:hover {
+    background: linear-gradient(135deg, var(--sber-dark-green), var(--sber-green));
+}
+
+/* Облако тегов в темной теме */
+body.dark-theme .tag-cloud {
+    background: linear-gradient(135deg, var(--sber-green), var(--sber-dark-green));
+}
+
+/* Плейсхолдеры в темной теме */
+body.dark-theme .placeholder {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .placeholder h3 {
+    color: var(--dark-text);
+}
+
+/* Загрузка в темной теме */
+body.dark-theme .loading {
+    color: var(--dark-gray);
+}
+
+/* Сигналы в темной теме */
+body.dark-theme .signal-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .signal-tag {
+    color: var(--dark-text);
+}
+
+/* Теги в результатах в темной теме */
+body.dark-theme .tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text);
+}
+
+body.dark-theme .tag:hover {
+    background: rgba(33, 160, 56, 0.2);
+    color: var(--sber-green);
+}
+
+/* Подсвеченный тег в результатах в темной теме */
+body.dark-theme .tag-highlight {
+    background: linear-gradient(135deg, var(--sber-green), var(--sber-dark-green));
+    color: white !important;
+}
+
+/* Секция новостей в темной теме */
+body.dark-theme .news-section {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+/* Контейнер новостей в темной теме */
+body.dark-theme .news-container .news-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .news-container .channel {
+    background: rgba(33, 160, 56, 0.15);
+    color: var(--sber-green);
+}
+
+body.dark-theme .news-container .date {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--dark-gray);
+}
+
+/* Статистика новостей в темной теме */
+body.dark-theme .news-container .news-stats {
+    border-color: var(--dark-border);
+    color: var(--dark-gray);
+}
+
+body.dark-theme .news-container .news-stat.clickable {
+    color: var(--sber-green);
+}
+
+body.dark-theme .news-container .news-stat.clickable:hover {
+    color: var(--sber-light-green);
+}
+
+/* Бейдж настроения в темной теме */
+body.dark-theme .sentiment-badge {
+    background: rgba(76, 175, 80, 0.15) !important;
+    color: var(--sber-light-green) !important;
+}
+
+/* Заголовки секций в темной теме */
+body.dark-theme .section-header h2 {
+    color: white;
+}
+
+/* Информация о количестве новостей в темной теме */
+body.dark-theme .news-controls {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark-theme .news-controls #news-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Счетчик в тегах в темной теме */
+body.dark-theme .tag-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Текст статистики в карточках в темной теме */
+body.dark-theme .search-stat {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--dark-gray);
+}
+
+/* Адаптивность для темной темы */
+@media (max-width: 768px) {
+    body.dark-theme .suggestions-container {
+        background: var(--dark-card);
+        border-color: var(--dark-border);
+    }
+}
+
+/* Анимации для темной темы */
+body.dark-theme .news-item,
+body.dark-theme .signal-item {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Специфичные улучшения для контрастности в темной теме */
+body.dark-theme ::selection {
+    background: var(--sber-green);
+    color: white;
+}
+
+body.dark-theme ::-moz-selection {
+    background: var(--sber-green);
+    color: white;
+}
+
+/* Улучшение видимости границ в темной теме */
+body.dark-theme .search-box:focus-within {
+    border-color: var(--sber-green);
+    box-shadow: 0 0 0 3px rgba(33, 160, 56, 0.3);
+}
+
+/* Улучшение видимости иконок в темной теме */
+body.dark-theme .stat i,
+body.dark-theme .news-stat i,
+body.dark-theme .search-stat i {
+    color: var(--dark-gray);
+}
+
+/* Улучшение видимости текста в статистических карточках */
+body.dark-theme .stat-card h3 {
+    color: var(--dark-text);
+}
+
+body.dark-theme .stat-card p {
+    color: var(--dark-gray);
+}
+
+/* Улучшение видимости текста в сигналах */
+body.dark-theme .signal-item p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Улучшение видимости типа сигнала */
+body.dark-theme .signal-type.problem {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff6b6b;
+}
+
+body.dark-theme .signal-type.opportunity {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+body.dark-theme .signal-type.early_trend {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+}
+
+/* Улучшение видимости иконок в заголовках секций */
+body.dark-theme .section-header h2 i {
+    color: white;
+}
+
+/* Улучшение видимости счетчика в бейджах */
+body.dark-theme .badge {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+/* Улучшение видимости заголовков в результатах поиска */
+body.dark-theme .search-info h3 {
+    color: var(--dark-text);
+}
+
+body.dark-theme .search-tag {
+    background: linear-gradient(135deg, var(--sber-green), var(--sber-dark-green));
+    color: white;
+}
+
+/* Улучшение видимости текста в подсказках при автодополнении */
+body.dark-theme .suggestion-content .suggestion-tag {
+    color: var(--dark-text);
+}
+
+body.dark-theme .similarity {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--sber-light-green);
+}
+
+body.dark-theme .exact-icon {
+    color: var(--sber-green);
+}
+
+body.dark-theme .fa-arrow-right {
+    color: var(--dark-gray);
+}
+
+body.dark-theme .suggestion-item:hover .fa-arrow-right {
+    color: var(--sber-green);
 }

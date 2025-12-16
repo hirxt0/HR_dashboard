@@ -502,21 +502,28 @@ def get_stats():
     finally:
         conn.close()
 
+
 @app.route('/api/news', methods=['GET'])
 def get_news():
-    """Получение последних новостей"""
-    limit = request.args.get('limit', 10, type=int)
+    """Получение последних новостей с пагинацией"""
+    limit = request.args.get('limit', 5, type=int)
+    offset = request.args.get('offset', 0, type=int)
     
     conn = get_db_connection()
     
     try:
+        # Сначала получаем общее количество новостей
+        cursor = conn.execute("SELECT COUNT(*) as total FROM chunks")
+        total = cursor.fetchone()['total']
+        
+        # Затем получаем новости для текущей страницы
         cursor = conn.execute('''
         SELECT id, text, metadata, llm_tags, sentiment, explanation,
                created_at
         FROM chunks
         ORDER BY created_at DESC
-        LIMIT ?
-        ''', (limit,))
+        LIMIT ? OFFSET ?
+        ''', (limit, offset))
         
         results = cursor.fetchall()
         
@@ -545,17 +552,29 @@ def get_news():
             formatted_news.append({
                 'id': row['id'],
                 'text': row['text'],
-                'llm_tags': llm_tags[:3],  # Берем только 3 тега
+                'llm_tags': llm_tags[:5],  # Берем только 5 тегов
                 'sentiment': row['sentiment'],
                 'channel': channel_map.get(source, 'Другое'),
                 'date': metadata.get('date', row['created_at'][:10]),
-                'short_text': row['text'][:150] + ('...' if len(row['text']) > 150 else '')
+                'short_text': row['text'][:150] + ('...' if len(row['text']) > 150 else ''),
+                'created_at': row['created_at']
             })
         
-        return jsonify({'news': formatted_news})
+        return jsonify({
+            'news': formatted_news,
+            'total': total,
+            'limit': limit,
+            'offset': offset,
+            'has_more': offset + limit < total
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Ошибка получения новостей: {e}")
+        return jsonify({
+            'news': [],
+            'total': 0,
+            'error': str(e)
+        }), 500
     finally:
         conn.close()
 
@@ -585,6 +604,40 @@ def suggest_tags():
     except Exception as e:
         print(f"Ошибка получения предложений: {e}")
         return jsonify({'suggestions': []})
+
+@app.route('/api/tags/count', methods=['GET'])
+def get_tags_count():
+    """Получение количества тегов"""
+    conn = get_db_connection()
+    
+    try:
+        cursor = conn.execute("SELECT llm_tags FROM chunks WHERE llm_tags IS NOT NULL")
+        all_tags = []
+        
+        for row in cursor.fetchall():
+            try:
+                tags = json.loads(row['llm_tags'])
+                all_tags.extend(tags)
+            except:
+                pass
+        
+        unique_tags = len(set(all_tags))
+        
+        return jsonify({
+            'total_tags': len(all_tags),
+            'unique_tags': unique_tags,
+            'tags_list': list(set(all_tags))[:50]  # Топ 50 тегов
+        })
+        
+    except Exception as e:
+        print(f"Ошибка получения количества тегов: {e}")
+        return jsonify({
+            'total_tags': 0,
+            'unique_tags': 0,
+            'tags_list': []
+        })
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     # Инициализируем БД

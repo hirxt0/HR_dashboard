@@ -16,9 +16,19 @@
                 <i class="fas fa-chart-line"></i>
                 <h1>HR Analytics Dashboard</h1>
             </div>
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
-                <span>Администратор</span>
+            <div class="header-controls">
+                <label class="toggle-label">
+                    <div class="theme-toggle">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <i class="fas fa-sun sun"></i>
+                    <i class="fas fa-moon moon"></i>
+                </label>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Аналитик</span>
+                </div>
             </div>
         </header>
 
@@ -73,6 +83,7 @@
                 </div>
             </section>
 
+
             <!-- Right Column: Search Results -->
             <section class="results-section">
                 <div class="section-header">
@@ -88,6 +99,34 @@
             </section>
         </div>
 
+            <!-- В раздел main-content добавить блок с новостями -->
+            <div class="news-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-newspaper"></i> Последние новости</h2>
+                    <div class="news-controls">
+                        <span id="news-count">0</span> новостей
+                    </div>
+                </div>
+                <div class="news-container" id="news-container">
+                    <!-- Новости будут загружаться здесь -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка новостей...</p>
+                    </div>
+                </div>
+                <div class="news-pagination">
+                    <button id="prev-news" class="pagination-btn" disabled>
+                        <i class="fas fa-chevron-left"></i> Назад
+                    </button>
+                    <span class="page-info">
+                        Страница <span id="current-page">1</span> из <span id="total-pages">1</span>
+                    </span>
+                    <button id="next-news" class="pagination-btn">
+                        Вперед <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+    
         <!-- Tags Cloud -->
         <section class="tags-section">
             <div class="section-header">

@@ -36,6 +36,11 @@ let totalNews = 0;
 // Текущая тема
 let isDarkTheme = false;
 
+// Последние результаты поиска (для перерисовки при смене темы)
+let lastSearchResults = null;
+let lastSearchTag = '';
+let lastSearchCount = 0;
+
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
     initTheme();
@@ -76,14 +81,26 @@ function setTheme(isDark) {
     
     // Обновляем цвет текста в поле поиска
     updateSearchInputTheme();
+    
+    // Перерисовываем результаты поиска, если они есть
+    if (lastSearchResults && lastSearchResults.length > 0) {
+        displayResults(lastSearchResults, lastSearchTag, lastSearchCount);
+    }
+    
+    // Перерисовываем новости
+    if (currentNewsPage) {
+        loadRecentNews(currentNewsPage);
+    }
 }
 
 // Обновление цвета текста в поле поиска
 function updateSearchInputTheme() {
     if (isDarkTheme) {
         elements.searchInput.style.color = '#ffffff';
+        elements.searchInput.style.setProperty('--placeholder-color', '#666666');
     } else {
         elements.searchInput.style.color = '#333333';
+        elements.searchInput.style.setProperty('--placeholder-color', '#757575');
     }
 }
 
@@ -215,21 +232,22 @@ function showSuggestions(suggestions, input) {
         const isExact = suggestion.is_exact;
         const similarity = Math.round(suggestion.similarity * 100);
         
-        // Используем белый текст для темной темы
-        const textColor = isDarkTheme ? 'white' : 'var(--dark)';
+        // Используем правильные цвета для темной темы
+        const textColor = isDarkTheme ? 'var(--dark-text)' : 'var(--dark)';
         const exactColor = isDarkTheme ? 'var(--sber-green)' : 'var(--primary)';
+        const metaColor = isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)';
         
         suggestionEl.innerHTML = `
             <div class="suggestion-content">
                 <span class="suggestion-tag ${isExact ? 'exact-match' : ''}" style="color: ${isExact ? exactColor : textColor};">
                     ${suggestion.tag}
                 </span>
-                <span class="suggestion-meta" style="color: ${isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)'};">
+                <span class="suggestion-meta" style="color: ${metaColor};">
                     ${suggestion.count ? `${suggestion.count} упоминаний` : ''}
                     ${!isExact && similarity > 60 ? `<span class="similarity">${similarity}% совпадение</span>` : ''}
                 </span>
             </div>
-            ${isExact ? `<i class="fas fa-check exact-icon" style="color: ${exactColor};"></i>` : `<i class="fas fa-arrow-right" style="color: ${isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)'};"></i>`}
+            ${isExact ? `<i class="fas fa-check exact-icon" style="color: ${exactColor};"></i>` : `<i class="fas fa-arrow-right" style="color: ${metaColor};"></i>`}
         `;
         
         // Обработчик клика
@@ -409,19 +427,23 @@ function displayNews(newsItems) {
     let html = '';
     
     newsItems.forEach(item => {
-        // Определяем иконку настроения
+        // Определяем иконку настроения (исправлено - негативные смайлики красные)
         let sentimentIcon = 'fas fa-meh';
         let sentimentColor = 'var(--gray)';
         let sentimentText = 'Нейтрально';
         
         if (item.sentiment === 'positive') {
             sentimentIcon = 'fas fa-smile';
-            sentimentColor = 'var(--success)';
+            sentimentColor = isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
             sentimentText = 'Позитивно';
         } else if (item.sentiment === 'negative') {
             sentimentIcon = 'fas fa-frown';
-            sentimentColor = 'var(--danger)';
+            sentimentColor = 'var(--danger)'; // Всегда красный!
             sentimentText = 'Негативно';
+        } else if (item.sentiment === 'neutral') {
+            sentimentIcon = 'fas fa-meh';
+            sentimentColor = 'var(--gray)';
+            sentimentText = 'Нейтрально';
         }
         
         // Форматируем дату
@@ -553,7 +575,12 @@ async function runSearch(tag = null) {
             showMessage(`Показаны результаты для тега: <strong>"${data.corrected_tag}"</strong> (исправлено с "${searchTag}")`, 'info');
         }
         
-        displayResults(data.results, data.corrected_tag || searchTag, data.count);
+        // Сохраняем результаты для перерисовки при смене темы
+        lastSearchResults = data.results;
+        lastSearchTag = data.corrected_tag || searchTag;
+        lastSearchCount = data.count;
+        
+        displayResults(data.results, lastSearchTag, lastSearchCount);
         
     } catch (error) {
         console.error('Ошибка поиска:', error);
@@ -563,6 +590,11 @@ async function runSearch(tag = null) {
 
 // Отображение результатов поиска с учетом темы
 function displayResults(results, searchTag, count) {
+    // Сохраняем последние результаты
+    lastSearchResults = results;
+    lastSearchTag = searchTag;
+    lastSearchCount = count;
+    
     if (!results || results.length === 0) {
         elements.resultsContainer.innerHTML = `
             <div class="placeholder">
@@ -575,11 +607,12 @@ function displayResults(results, searchTag, count) {
         return;
     }
     
-    // Определяем цвета для темной темы
+    // Определяем цвета для текущей темы
     const backgroundColor = isDarkTheme ? 'var(--dark-card)' : 'white';
     const textColor = isDarkTheme ? 'var(--dark-text)' : 'var(--dark)';
     const borderColor = isDarkTheme ? 'var(--dark-border)' : 'var(--light-gray)';
     const infoColor = isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)';
+    const shadowOpacity = isDarkTheme ? '0.2' : '0.05';
     
     let html = `
         <div class="search-info" style="
@@ -589,7 +622,7 @@ function displayResults(results, searchTag, count) {
             border-radius: var(--border-radius);
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, ${isDarkTheme ? '0.2' : '0.05'});
+            box-shadow: 0 2px 10px rgba(0, 0, 0, ${shadowOpacity});
         ">
             <h3 style="color: ${textColor}; margin-bottom: 8px; font-size: 18px;">
                 Найдено результатов: ${count.toLocaleString()}
@@ -609,16 +642,19 @@ function displayResults(results, searchTag, count) {
     `;
     
     results.forEach(item => {
-        // Определяем иконку настроения
+        // Определяем иконку настроения (исправлено - негативные смайлики красные)
         let sentimentIcon = 'fas fa-meh';
         let sentimentColor = 'var(--gray)';
         
         if (item.sentiment === 'positive') {
             sentimentIcon = 'fas fa-smile';
-            sentimentColor = 'var(--success)';
+            sentimentColor = isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
         } else if (item.sentiment === 'negative') {
             sentimentIcon = 'fas fa-frown';
-            sentimentColor = 'var(--danger)';
+            sentimentColor = 'var(--danger)'; // Всегда красный!
+        } else if (item.sentiment === 'neutral') {
+            sentimentIcon = 'fas fa-meh';
+            sentimentColor = 'var(--gray)';
         }
         
         // Форматируем дату

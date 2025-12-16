@@ -4,7 +4,7 @@ from flask_cors import CORS
 import sqlite3
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import Counter
 import difflib
 from typing import List, Tuple, Dict, Any
@@ -55,62 +55,74 @@ def create_sample_data():
     count = cursor.fetchone()[0]
     
     if count == 0:
+        # Генерируем даты для новостей
+        base_date = datetime.now()
+        dates = [(base_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(9)]
+        
         sample_data = [
             {
                 'text': 'Компания Google объявила о новых инвестициях в искусственный интеллект и машинное обучение. Технологический гигант планирует создать 1000 новых рабочих мест в сфере ИИ в течение следующего года.',
-                'metadata': json.dumps({'source': 'tech_news', 'date': '2024-01-15'}),
+                'metadata': json.dumps({'source': 'tech_news', 'date': dates[0]}),
                 'llm_tags': json.dumps(['технологии', 'искусственный интеллект', 'инвестиции', 'работа']),
                 'sentiment': 'positive',
                 'explanation': 'Текст посвящен инвестициям в ИИ и созданию рабочих мест'
             },
             {
                 'text': 'Кризис на рынке IT-специалистов продолжает обостряться. Компании сталкиваются с дефицитом квалифицированных кадров, что сказывается на темпах цифровой трансформации.',
-                'metadata': json.dumps({'source': 'hr_digest', 'date': '2024-01-14'}),
+                'metadata': json.dumps({'source': 'hr_digest', 'date': dates[1]}),
                 'llm_tags': json.dumps(['работа', 'кадры', 'кризис', 'IT']),
                 'sentiment': 'negative',
                 'explanation': 'Обсуждается дефицит IT-кадров и его последствия'
             },
             {
                 'text': 'Новые исследования показывают, что удаленная работа повышает продуктивность сотрудников на 15%. Компании активно внедряют гибридные форматы работы.',
-                'metadata': json.dumps({'source': 'work_trends', 'date': '2024-01-13'}),
+                'metadata': json.dumps({'source': 'work_trends', 'date': dates[2]}),
                 'llm_tags': json.dumps(['работа', 'удаленка', 'продуктивность', 'исследования']),
                 'sentiment': 'positive',
                 'explanation': 'Текст о преимуществах удаленной работы и исследованиях'
             },
             {
                 'text': 'Стартап в области fintech привлек $50 млн инвестиций. Компания разрабатывает инновационные решения для банковского сектора.',
-                'metadata': json.dumps({'source': 'startup_news', 'date': '2024-01-12'}),
+                'metadata': json.dumps({'source': 'startup_news', 'date': dates[3]}),
                 'llm_tags': json.dumps(['стартапы', 'финтех', 'инвестиции', 'инновации']),
                 'sentiment': 'positive',
                 'explanation': 'Новость о привлечении инвестиций fintech-стартапом'
             },
             {
                 'text': 'Эксперты прогнозируют рост безработицы в IT-секторе на 5% в следующем квартале. Причина - сокращение бюджетов на digital-проекты.',
-                'metadata': json.dumps({'source': 'economic_news', 'date': '2024-01-11'}),
+                'metadata': json.dumps({'source': 'economic_news', 'date': dates[4]}),
                 'llm_tags': json.dumps(['работа', 'IT', 'безработица', 'экономика']),
                 'sentiment': 'negative',
                 'explanation': 'Прогноз роста безработицы в IT-сфере'
             },
             {
                 'text': 'Microsoft запускает новую программу обучения AI-специалистов. Курс будет доступен бесплатно для всех желающих.',
-                'metadata': json.dumps({'source': 'education', 'date': '2024-01-10'}),
+                'metadata': json.dumps({'source': 'education', 'date': dates[5]}),
                 'llm_tags': json.dumps(['образование', 'искусственный интеллект', 'обучение', 'технологии']),
                 'sentiment': 'positive',
                 'explanation': 'Анонс образовательной программы по ИИ от Microsoft'
             },
             {
                 'text': 'Проблемы с кибербезопасностью становятся главной угрозой для бизнеса. Утечки данных участились на 30% за последний год.',
-                'metadata': json.dumps({'source': 'security', 'date': '2024-01-09'}),
+                'metadata': json.dumps({'source': 'security', 'date': dates[6]}),
                 'llm_tags': json.dumps(['кибербезопасность', 'данные', 'бизнес', 'угрозы']),
                 'sentiment': 'negative',
                 'explanation': 'Текст о росте угроз кибербезопасности'
             },
             {
                 'text': 'Тренд на wellness в корпоративной культуре набирает обороты. Компании инвестируют в здоровье и благополучие сотрудников.',
-                'metadata': json.dumps({'source': 'hr_trends', 'date': '2024-01-08'}),
+                'metadata': json.dumps({'source': 'hr_trends', 'date': dates[7]}),
                 'llm_tags': json.dumps(['корпоративная культура', 'здоровье', 'тренды', 'бизнес']),
                 'sentiment': 'positive',
                 'explanation': 'Обзор тренда wellness в компаниях'
+            },
+            # Добавляем нейтральную новость
+            {
+                'text': 'Согласно отчету аналитиков, рынок гибридной работы продолжает развиваться стабильными темпами. Большинство компаний сохраняют текущие форматы работы без значительных изменений. Эксперты отмечают, что переходный период завершен, и теперь наблюдается плавная адаптация существующих моделей.',
+                'metadata': json.dumps({'source': 'market_analysis', 'date': dates[8]}),
+                'llm_tags': json.dumps(['работа', 'гибридный формат', 'аналитика', 'тренды', 'стабильность']),
+                'sentiment': 'neutral',
+                'explanation': 'Обзор текущего состояния рынка гибридной работы без выраженных положительных или отрицательных тенденций'
             }
         ]
         
@@ -127,7 +139,7 @@ def create_sample_data():
             ))
         
         conn.commit()
-        print(f"Добавлено {len(sample_data)} тестовых записей")
+        print(f"Добавлено {len(sample_data)} тестовых записей (включая нейтральную)")
     
     conn.close()
 
@@ -502,7 +514,6 @@ def get_stats():
     finally:
         conn.close()
 
-
 @app.route('/api/news', methods=['GET'])
 def get_news():
     """Получение последних новостей с пагинацией"""
@@ -546,7 +557,8 @@ def get_news():
                 'economic_news': 'Экономика',
                 'education': 'Образование',
                 'security': 'Безопасность',
-                'hr_trends': 'HR Тренды'
+                'hr_trends': 'HR Тренды',
+                'market_analysis': 'Аналитика рынка'
             }
             
             formatted_news.append({
@@ -652,5 +664,9 @@ if __name__ == '__main__':
     print("HR Analytics Dashboard запущен!")
     print("Откройте в браузере: http://localhost:5000")
     print("=" * 50)
+    print("Добавлена нейтральная новость для тестирования")
+    print("Теперь в базе есть позитивные, негативные и нейтральные записи")
+    print("Всего записей: 9")
+    print("Теги: технологии, искусственный интеллект, инвестиции, работа, кадры, кризис, IT, удаленка, продуктивность, исследования, стартапы, финтех, инновации, безработица, экономика, образование, обучение, кибербезопасность, данные, бизнес, угрозы, корпоративная культура, здоровье, тренды, гибридный формат, аналитика, стабильность")
     
     app.run(debug=True, host='0.0.0.0', port=5000)

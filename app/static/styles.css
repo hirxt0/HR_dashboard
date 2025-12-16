@@ -1508,3 +1508,29 @@ body.dark-theme .fa-arrow-right {
 body.dark-theme .suggestion-item:hover .fa-arrow-right {
     color: var(--sber-green);
 }
+
+/* Добавим в конец файла */
+
+/* Улучшенные цвета для настроений в темной теме */
+body.dark-theme .sentiment-badge.positive {
+    background: rgba(76, 175, 80, 0.2) !important;
+    color: var(--sber-light-green) !important;
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+}
+
+body.dark-theme .sentiment-badge.negative {
+    background: rgba(244, 67, 54, 0.2) !important;
+    color: #ff6b6b !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
+}
+
+body.dark-theme .sentiment-badge.neutral {
+    background: rgba(117, 117, 117, 0.2) !important;
+    color: var(--dark-gray) !important;
+    border: 1px solid rgba(117, 117, 117, 0.3) !important;
+}
+
+/* Также обновим стили для каналов в новостях */
+body.dark-theme .news-container .sentiment-badge i {
+    color: inherit !important;
+}

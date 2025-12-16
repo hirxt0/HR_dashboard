@@ -55,74 +55,204 @@ def create_sample_data():
     count = cursor.fetchone()[0]
     
     if count == 0:
-        # Генерируем даты для новостей
+        # Генерируем даты для новостей (последние 30 дней)
         base_date = datetime.now()
-        dates = [(base_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(9)]
+        dates = [(base_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30)]
         
         sample_data = [
+            # Технологии и ИИ
             {
                 'text': 'Компания Google объявила о новых инвестициях в искусственный интеллект и машинное обучение. Технологический гигант планирует создать 1000 новых рабочих мест в сфере ИИ в течение следующего года.',
                 'metadata': json.dumps({'source': 'tech_news', 'date': dates[0]}),
-                'llm_tags': json.dumps(['технологии', 'искусственный интеллект', 'инвестиции', 'работа']),
+                'llm_tags': json.dumps(['технологии', 'искусственный интеллект', 'инвестиции', 'работа', 'Google']),
                 'sentiment': 'positive',
                 'explanation': 'Текст посвящен инвестициям в ИИ и созданию рабочих мест'
             },
             {
+                'text': 'Microsoft представляет новую версию Copilot для разработчиков с улучшенной поддержкой Python и JavaScript.',
+                'metadata': json.dumps({'source': 'tech_updates', 'date': dates[1]}),
+                'llm_tags': json.dumps(['технологии', 'Microsoft', 'разработка', 'инструменты', 'AI']),
+                'sentiment': 'positive',
+                'explanation': 'Анонс нового инструмента для разработчиков'
+            },
+            {
+                'text': 'Утечка данных в крупной IT-компании: пострадало более 500 тысяч пользователей. Эксперты отмечают рост кибератак на 40% в этом квартале.',
+                'metadata': json.dumps({'source': 'security', 'date': dates[2]}),
+                'llm_tags': json.dumps(['кибербезопасность', 'данные', 'утечка', 'IT', 'риски']),
+                'sentiment': 'negative',
+                'explanation': 'Новость о серьезной утечке данных'
+            },
+            
+            # HR и рынок труда
+            {
                 'text': 'Кризис на рынке IT-специалистов продолжает обостряться. Компании сталкиваются с дефицитом квалифицированных кадров, что сказывается на темпах цифровой трансформации.',
-                'metadata': json.dumps({'source': 'hr_digest', 'date': dates[1]}),
-                'llm_tags': json.dumps(['работа', 'кадры', 'кризис', 'IT']),
+                'metadata': json.dumps({'source': 'hr_digest', 'date': dates[3]}),
+                'llm_tags': json.dumps(['работа', 'кадры', 'кризис', 'IT', 'дефицит']),
                 'sentiment': 'negative',
                 'explanation': 'Обсуждается дефицит IT-кадров и его последствия'
             },
             {
                 'text': 'Новые исследования показывают, что удаленная работа повышает продуктивность сотрудников на 15%. Компании активно внедряют гибридные форматы работы.',
-                'metadata': json.dumps({'source': 'work_trends', 'date': dates[2]}),
-                'llm_tags': json.dumps(['работа', 'удаленка', 'продуктивность', 'исследования']),
+                'metadata': json.dumps({'source': 'work_trends', 'date': dates[4]}),
+                'llm_tags': json.dumps(['работа', 'удаленка', 'продуктивность', 'исследования', 'гибридный формат']),
                 'sentiment': 'positive',
                 'explanation': 'Текст о преимуществах удаленной работы и исследованиях'
             },
             {
+                'text': 'Средняя зарплата разработчиков в России выросла на 20% за год. Наибольший рост отмечается в сферах Data Science и DevOps.',
+                'metadata': json.dumps({'source': 'salary_report', 'date': dates[5]}),
+                'llm_tags': json.dumps(['зарплата', 'разработчики', 'рынок труда', 'рост', 'Data Science']),
+                'sentiment': 'positive',
+                'explanation': 'Новость о росте зарплат в IT-сфере'
+            },
+            
+            # Стартапы и инвестиции
+            {
                 'text': 'Стартап в области fintech привлек $50 млн инвестиций. Компания разрабатывает инновационные решения для банковского сектора.',
-                'metadata': json.dumps({'source': 'startup_news', 'date': dates[3]}),
-                'llm_tags': json.dumps(['стартапы', 'финтех', 'инвестиции', 'инновации']),
+                'metadata': json.dumps({'source': 'startup_news', 'date': dates[6]}),
+                'llm_tags': json.dumps(['стартапы', 'финтех', 'инвестиции', 'инновации', 'банкинг']),
                 'sentiment': 'positive',
                 'explanation': 'Новость о привлечении инвестиций fintech-стартапом'
             },
             {
-                'text': 'Эксперты прогнозируют рост безработицы в IT-секторе на 5% в следующем квартале. Причина - сокращение бюджетов на digital-проекты.',
-                'metadata': json.dumps({'source': 'economic_news', 'date': dates[4]}),
-                'llm_tags': json.dumps(['работа', 'IT', 'безработица', 'экономика']),
+                'text': 'Венчурные фонды сокращают инвестиции в ранние стадии на 30%. Эксперты связывают это с общей экономической нестабильностью.',
+                'metadata': json.dumps({'source': 'vc_news', 'date': dates[7]}),
+                'llm_tags': json.dumps(['инвестиции', 'венчурные фонды', 'экономика', 'сокращение', 'стартапы']),
                 'sentiment': 'negative',
-                'explanation': 'Прогноз роста безработицы в IT-сфере'
+                'explanation': 'Новость о сокращении венчурных инвестиций'
             },
+            
+            # Образование и обучение
             {
                 'text': 'Microsoft запускает новую программу обучения AI-специалистов. Курс будет доступен бесплатно для всех желающих.',
-                'metadata': json.dumps({'source': 'education', 'date': dates[5]}),
-                'llm_tags': json.dumps(['образование', 'искусственный интеллект', 'обучение', 'технологии']),
+                'metadata': json.dumps({'source': 'education', 'date': dates[8]}),
+                'llm_tags': json.dumps(['образование', 'искусственный интеллект', 'обучение', 'технологии', 'бесплатно']),
                 'sentiment': 'positive',
                 'explanation': 'Анонс образовательной программы по ИИ от Microsoft'
             },
             {
+                'text': 'Спрос на онлайн-курсы по программированию вырос в 3 раза. Платформы отмечают увеличение пользователей из регионов.',
+                'metadata': json.dumps({'source': 'edtech', 'date': dates[9]}),
+                'llm_tags': json.dumps(['образование', 'онлайн-курсы', 'программирование', 'тренды', 'edtech']),
+                'sentiment': 'positive',
+                'explanation': 'Новость о росте спроса на онлайн-образование'
+            },
+            
+            # Экономика и бизнес
+            {
+                'text': 'Эксперты прогнозируют рост безработицы в IT-секторе на 5% в следующем квартале. Причина - сокращение бюджетов на digital-проекты.',
+                'metadata': json.dumps({'source': 'economic_news', 'date': dates[10]}),
+                'llm_tags': json.dumps(['работа', 'IT', 'безработица', 'экономика', 'сокращения']),
+                'sentiment': 'negative',
+                'explanation': 'Прогноз роста безработицы в IT-сфере'
+            },
+            {
+                'text': 'Корпорации внедряют 4-дневную рабочую неделю. Первые результаты показывают рост удовлетворенности сотрудников.',
+                'metadata': json.dumps({'source': 'business_innovation', 'date': dates[11]}),
+                'llm_tags': json.dumps(['работа', 'инновации', 'корпоративная культура', 'продуктивность', 'эксперименты']),
+                'sentiment': 'positive',
+                'explanation': 'Новость о внедрении 4-дневной рабочей недели'
+            },
+            
+            # Кибербезопасность
+            {
                 'text': 'Проблемы с кибербезопасностью становятся главной угрозой для бизнеса. Утечки данных участились на 30% за последний год.',
-                'metadata': json.dumps({'source': 'security', 'date': dates[6]}),
-                'llm_tags': json.dumps(['кибербезопасность', 'данные', 'бизнес', 'угрозы']),
+                'metadata': json.dumps({'source': 'security', 'date': dates[12]}),
+                'llm_tags': json.dumps(['кибербезопасность', 'данные', 'бизнес', 'угрозы', 'риски']),
                 'sentiment': 'negative',
                 'explanation': 'Текст о росте угроз кибербезопасности'
             },
             {
+                'text': 'Новые стандарты шифрования данных приняты на международном уровне. Компании должны обновить системы до конца года.',
+                'metadata': json.dumps({'source': 'security_standards', 'date': dates[13]}),
+                'llm_tags': json.dumps(['кибербезопасность', 'стандарты', 'шифрование', 'регулирование', 'комплаенс']),
+                'sentiment': 'neutral',
+                'explanation': 'Информация о новых стандартах безопасности'
+            },
+            
+            # Корпоративная культура
+            {
                 'text': 'Тренд на wellness в корпоративной культуре набирает обороты. Компании инвестируют в здоровье и благополучие сотрудников.',
-                'metadata': json.dumps({'source': 'hr_trends', 'date': dates[7]}),
-                'llm_tags': json.dumps(['корпоративная культура', 'здоровье', 'тренды', 'бизнес']),
+                'metadata': json.dumps({'source': 'hr_trends', 'date': dates[14]}),
+                'llm_tags': json.dumps(['корпоративная культура', 'здоровье', 'тренды', 'бизнес', 'wellness']),
                 'sentiment': 'positive',
                 'explanation': 'Обзор тренда wellness в компаниях'
             },
-            # Добавляем нейтральную новость
             {
-                'text': 'Согласно отчету аналитиков, рынок гибридной работы продолжает развиваться стабильными темпами. Большинство компаний сохраняют текущие форматы работы без значительных изменений. Эксперты отмечают, что переходный период завершен, и теперь наблюдается плавная адаптация существующих моделей.',
-                'metadata': json.dumps({'source': 'market_analysis', 'date': dates[8]}),
+                'text': 'Конфликты в удаленных командах участились на 25%. Психологи рекомендуют внедрять регулярные check-in встречи.',
+                'metadata': json.dumps({'source': 'hr_research', 'date': dates[15]}),
+                'llm_tags': json.dumps(['удаленка', 'конфликты', 'команды', 'психология', 'менеджмент']),
+                'sentiment': 'negative',
+                'explanation': 'Исследование о конфликтах в удаленных командах'
+            },
+            
+            # Нейтральные и аналитические новости
+            {
+                'text': 'Согласно отчету аналитиков, рынок гибридной работы продолжает развиваться стабильными темпами. Большинство компаний сохраняют текущие форматы работы без значительных изменений.',
+                'metadata': json.dumps({'source': 'market_analysis', 'date': dates[16]}),
                 'llm_tags': json.dumps(['работа', 'гибридный формат', 'аналитика', 'тренды', 'стабильность']),
                 'sentiment': 'neutral',
-                'explanation': 'Обзор текущего состояния рынка гибридной работы без выраженных положительных или отрицательных тенденций'
+                'explanation': 'Обзор текущего состояния рынка гибридной работы'
+            },
+            {
+                'text': 'Исследование: 60% компаний планируют увеличить бюджет на цифровую трансформацию в следующем году. Основные инвестиции направлены в автоматизацию процессов.',
+                'metadata': json.dumps({'source': 'digital_transformation', 'date': dates[17]}),
+                'llm_tags': json.dumps(['цифровая трансформация', 'инвестиции', 'автоматизация', 'бюджет', 'исследование']),
+                'sentiment': 'neutral',
+                'explanation': 'Аналитика бюджетов на цифровую трансформацию'
+            },
+            
+            # Новые технологии
+            {
+                'text': 'Квантовые компьютеры становятся коммерчески доступными. Первые промышленные применения ожидаются в фармацевтике и логистике.',
+                'metadata': json.dumps({'source': 'emerging_tech', 'date': dates[18]}),
+                'llm_tags': json.dumps(['квантовые вычисления', 'технологии', 'инновации', 'фармацевтика', 'логистика']),
+                'sentiment': 'positive',
+                'explanation': 'Новость о коммерциализации квантовых компьютеров'
+            },
+            {
+                'text': 'Эксперты предупреждают о рисках нерегулируемого использования генеративного ИИ. Возможны нарушения авторских прав и этические проблемы.',
+                'metadata': json.dumps({'source': 'ai_ethics', 'date': dates[19]}),
+                'llm_tags': json.dumps(['искусственный интеллект', 'этика', 'регулирование', 'риски', 'генеративный AI']),
+                'sentiment': 'negative',
+                'explanation': 'Обсуждение этических проблем генеративного ИИ'
+            },
+            
+            # Дополнительные разнообразные новости
+            {
+                'text': 'Рынок EdTech показывает рекордный рост: объем инвестиций превысил $1 млрд. Российские стартапы привлекают внимание международных фондов.',
+                'metadata': json.dumps({'source': 'investment_news', 'date': dates[20]}),
+                'llm_tags': json.dumps(['EdTech', 'инвестиции', 'стартапы', 'образование', 'рекорд']),
+                'sentiment': 'positive',
+                'explanation': 'Новость о росте инвестиций в образовательные технологии'
+            },
+            {
+                'text': 'Сокращение штата в крупной IT-компании: уволено 10% сотрудников. Руководство объясняет это реструктуризацией бизнеса.',
+                'metadata': json.dumps({'source': 'corporate_news', 'date': dates[21]}),
+                'llm_tags': json.dumps(['сокращения', 'IT', 'реструктуризация', 'компания', 'увольнения']),
+                'sentiment': 'negative',
+                'explanation': 'Новость о массовых увольнениях в IT-компании'
+            },
+            {
+                'text': 'Новое исследование: разнообразие в командах повышает инновационность на 35%. Компании внедряют программы инклюзивности.',
+                'metadata': json.dumps({'source': 'diversity_research', 'date': dates[22]}),
+                'llm_tags': json.dumps(['разнообразие', 'инновации', 'команды', 'исследование', 'инклюзивность']),
+                'sentiment': 'positive',
+                'explanation': 'Исследование о влиянии разнообразия на инновации'
+            },
+            {
+                'text': 'Переход на отечественное ПО: компании сталкиваются с техническими сложностями. Сроки миграции могут быть перенесены.',
+                'metadata': json.dumps({'source': 'tech_migration', 'date': dates[23]}),
+                'llm_tags': json.dumps(['миграция', 'ПО', 'технологии', 'сложности', 'отечественное']),
+                'sentiment': 'negative',
+                'explanation': 'Новость о проблемах при переходе на отечественное ПО'
+            },
+            {
+                'text': 'Блокчейн-технологии находят применение в HR: проверка дипломов и трудовая история. Пилотные проекты запущены в крупных корпорациях.',
+                'metadata': json.dumps({'source': 'blockchain_hr', 'date': dates[24]}),
+                'llm_tags': json.dumps(['блокчейн', 'HR', 'технологии', 'инновации', 'верификация']),
+                'sentiment': 'positive',
+                'explanation': 'Применение блокчейна в HR-процессах'
             }
         ]
         
@@ -139,7 +269,28 @@ def create_sample_data():
             ))
         
         conn.commit()
-        print(f"Добавлено {len(sample_data)} тестовых записей (включая нейтральную)")
+        print(f"Добавлено {len(sample_data)} тестовых записей")
+        print(f"Уникальных дат: {len(dates)}")
+        print(f"Примеры тегов: технологии, ИИ, работа, кибербезопасность, инвестиции, стартапы, образование, зарплата, удаленка")
+        
+    else:
+        # Проверим существующие данные
+        print(f"В базе уже есть {count} записей")
+        
+        # Посчитаем уникальные теги
+        cursor.execute("SELECT llm_tags FROM chunks WHERE llm_tags IS NOT NULL")
+        all_tags = []
+        
+        for row in cursor.fetchall():
+            try:
+                tags = json.loads(row['llm_tags'])
+                all_tags.extend(tags)
+            except:
+                pass
+        
+        unique_tags = len(set(all_tags))
+        print(f"Уникальных тегов в базе: {unique_tags}")
+        print("Примеры тегов:", list(set(all_tags))[:10])
     
     conn.close()
 
@@ -221,13 +372,13 @@ class TagSuggester:
         """Получение предложений для запроса"""
         if not query or len(query) < 2:
             return []
-        
+
         if not self._initialized:
             self.initialize()
-        
+
         query_normalized = normalize_text(query)
         suggestions = []
-        
+
         for tag in self.all_tags:
             # Пропускаем слишком короткие теги
             if len(tag) < 3:
@@ -236,52 +387,58 @@ class TagSuggester:
             # Вычисляем схожесть
             similarity = calculate_similarity(query, tag)
             is_exact = normalize_text(tag) == query_normalized
-            
+
             # Проверяем, содержит ли тег запрос или запрос содержит тег
             contains_query = query_normalized in normalize_text(tag)
             query_contains_tag = normalize_text(tag) in query_normalized
-            
-            # Устанавливаем порог схожести в зависимости от типа совпадения
-            min_similarity = 0.5  # Базовый порог
-            
-            # Понижаем порог для частичных совпадений
-            if contains_query or query_contains_tag:
+
+            # Используем реальную схожесть без искусственного увеличения
+            # Но устанавливаем более высокий приоритет для частичных совпадений
+
+            # Устанавливаем пороги схожести
+            if is_exact:
+                # Точное совпадение - самый высокий приоритет
+                min_similarity = 0.0  # Принимаем всегда
+                # Для точного совпадения устанавливаем similarity = 1.0
+                similarity = 1.0
+            elif contains_query or query_contains_tag:
+                # Частичное совпадение - средний приоритет
                 min_similarity = 0.3
-            
-            # Повышаем схожесть для частичных совпадений
-            if contains_query:
-                similarity = min(0.95, similarity + 0.3)
-            elif query_contains_tag:
-                similarity = min(0.85, similarity + 0.2)
-            
+                # Для частичных совпадений немного повышаем схожесть
+                # но не слишком сильно, чтобы проценты были реалистичными
+                similarity = min(0.9, similarity * 1.2)  # Увеличиваем на 20%, но не более 90%
+            else:
+                # Просто похожие теги - самый низкий приоритет
+                min_similarity = 0.6
+
             # Добавляем тег в предложения если превышен порог
-            if is_exact or similarity >= min_similarity:
+            if similarity >= min_similarity:
                 suggestions.append({
                     'tag': tag,
                     'similarity': similarity,
                     'is_exact': is_exact,
                     'count': self.tag_counts.get(tag, 0)
                 })
-        
+
         # Сортируем по приоритету: точные совпадения -> схожесть -> частота использования
         suggestions.sort(key=lambda x: (
             -x['is_exact'],  # Точные совпадения вначале
             -x['similarity'],  # Затем по схожести
             -x['count']  # Затем по частоте
         ))
-        
-        # Возвращаем только уникальные теги (иногда могут быть синонимы с одинаковой схожестью)
+
+        # Возвращаем только уникальные теги
         seen_tags = set()
         unique_suggestions = []
-        
+
         for suggestion in suggestions:
             if suggestion['tag'] not in seen_tags:
                 seen_tags.add(suggestion['tag'])
                 unique_suggestions.append(suggestion)
-                
+
                 if len(unique_suggestions) >= limit:
                     break
-        
+                
         return unique_suggestions
 
 # Инициализируем TagSuggester
@@ -417,20 +574,40 @@ def get_stats():
         cursor = conn.execute("SELECT COUNT(*) as total FROM chunks")
         total_news = cursor.fetchone()['total']
         
-        # Собираем все теги
-        cursor.execute("SELECT llm_tags FROM chunks WHERE llm_tags IS NOT NULL")
+        # Собираем все теги - БОЛЕЕ НАДЕЖНЫЙ ВАРИАНТ
+        cursor.execute("SELECT llm_tags FROM chunks WHERE llm_tags IS NOT NULL AND llm_tags != ''")
         all_tags = []
+        tag_errors = 0
+        
+        print(f"Всего записей с тегами: {cursor.rowcount}")
         
         for row in cursor.fetchall():
+            tags_json = row['llm_tags']
+            if not tags_json or tags_json.strip() == '':
+                continue
+                
             try:
-                tags = json.loads(row['llm_tags'])
-                all_tags.extend(tags)
-            except:
-                pass
+                tags = json.loads(tags_json)
+                if isinstance(tags, list):
+                    all_tags.extend(tags)
+                else:
+                    print(f"Ошибка: теги не список: {tags_json}")
+                    tag_errors += 1
+            except json.JSONDecodeError as e:
+                print(f"Ошибка парсинга JSON: {e}, данные: {tags_json}")
+                tag_errors += 1
+            except Exception as e:
+                print(f"Другая ошибка: {e}")
+                tag_errors += 1
+        
+        # ОТЛАДОЧНАЯ ИНФОРМАЦИЯ
+        print(f"Собрано тегов: {len(all_tags)}")
+        print(f"Ошибок парсинга: {tag_errors}")
         
         unique_tags = len(set(all_tags))
         
         # Популярные теги (топ-15 для лучшего исправления)
+        from collections import Counter
         tag_counter = Counter(all_tags)
         popular_tags = [{'tag': tag, 'count': count} 
                        for tag, count in tag_counter.most_common(15)]
@@ -498,18 +675,26 @@ def get_stats():
             'total_signals': total_signals,
             'popular_tags': popular_tags,
             'signals': formatted_signals[:6],  # Максимум 6 сигналов
-            'update_time': datetime.now().strftime('%d.%m.%Y %H:%M')
+            'update_time': datetime.now().strftime('%d.%m.%Y %H:%M'),
+            'debug_info': {  # Добавляем отладочную информацию
+                'total_tags_collected': len(all_tags),
+                'tag_parsing_errors': tag_errors,
+                'tag_samples': list(set(all_tags))[:10] if all_tags else []
+            }
         })
         
     except Exception as e:
         print(f"Ошибка получения статистики: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'total_news': 0,
             'unique_tags': 0,
             'total_signals': 0,
             'popular_tags': [],
             'signals': [],
-            'update_time': datetime.now().strftime('%d.%m.%Y %H:%M')
+            'update_time': datetime.now().strftime('%d.%m.%Y %H:%M'),
+            'error': str(e)
         })
     finally:
         conn.close()

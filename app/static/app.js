@@ -411,7 +411,30 @@ function updatePaginationControls(page, total) {
     }
 }
 
-// Отображение новостей
+function getNewsSentimentColor(sentiment) {
+    if (sentiment === 'positive') {
+        return isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
+    } else if (sentiment === 'negative') {
+        return isDarkTheme ? 'var(--danger)' : 'var(--danger)'; // Всегда красный, но правильный
+    } else if (sentiment === 'neutral') {
+        return isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)'; // Серый в темной теме
+    }
+    return isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)';
+}
+
+// ТАКЖЕ нужно исправить getResultSentimentColor для консистентности:
+function getResultSentimentColor(sentiment) {
+    if (sentiment === 'positive') {
+        return isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
+    } else if (sentiment === 'negative') {
+        return 'var(--danger)'; // Всегда красный
+    } else if (sentiment === 'neutral') {
+        return isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)'; // Серый в темной теме
+    }
+    return isDarkTheme ? 'var(--dark-gray)' : 'var(--gray)';
+}
+
+// Отображение новостей в разделе "Последние новости"
 function displayNews(newsItems) {
     if (!newsItems || newsItems.length === 0) {
         elements.newsContainer.innerHTML = `
@@ -427,24 +450,23 @@ function displayNews(newsItems) {
     let html = '';
     
     newsItems.forEach(item => {
-        // Определяем иконку настроения (исправлено - негативные смайлики красные)
+        // Определяем иконку настроения
         let sentimentIcon = 'fas fa-meh';
-        let sentimentColor = 'var(--gray)';
         let sentimentText = 'Нейтрально';
         
         if (item.sentiment === 'positive') {
             sentimentIcon = 'fas fa-smile';
-            sentimentColor = isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
             sentimentText = 'Позитивно';
         } else if (item.sentiment === 'negative') {
             sentimentIcon = 'fas fa-frown';
-            sentimentColor = 'var(--danger)'; // Всегда красный!
             sentimentText = 'Негативно';
         } else if (item.sentiment === 'neutral') {
             sentimentIcon = 'fas fa-meh';
-            sentimentColor = 'var(--gray)';
             sentimentText = 'Нейтрально';
         }
+        
+        // Получаем цвет настроения с учетом темы
+        const sentimentColor = getNewsSentimentColor(item.sentiment);
         
         // Форматируем дату
         const date = item.date || item.created_at?.substring(0, 10) || 'Неизвестно';
@@ -457,7 +479,7 @@ function displayNews(newsItems) {
                             <i class="fas fa-newspaper"></i>
                             <span>${item.channel || 'Источник'}</span>
                         </div>
-                        <div class="sentiment-badge" style="background: ${sentimentColor}20; color: ${sentimentColor};">
+                        <div class="sentiment-badge ${item.sentiment}" style="background: ${sentimentColor}20; color: ${sentimentColor};">
                             <i class="${sentimentIcon}"></i>
                             <span>${sentimentText}</span>
                         </div>
@@ -642,20 +664,23 @@ function displayResults(results, searchTag, count) {
     `;
     
     results.forEach(item => {
-        // Определяем иконку настроения (исправлено - негативные смайлики красные)
+        // Определяем иконку настроения
         let sentimentIcon = 'fas fa-meh';
-        let sentimentColor = 'var(--gray)';
+        let sentimentText = 'Нейтрально';
         
         if (item.sentiment === 'positive') {
             sentimentIcon = 'fas fa-smile';
-            sentimentColor = isDarkTheme ? 'var(--sber-green)' : 'var(--success)';
+            sentimentText = 'Позитивно';
         } else if (item.sentiment === 'negative') {
             sentimentIcon = 'fas fa-frown';
-            sentimentColor = 'var(--danger)'; // Всегда красный!
+            sentimentText = 'Негативно';
         } else if (item.sentiment === 'neutral') {
             sentimentIcon = 'fas fa-meh';
-            sentimentColor = 'var(--gray)';
+            sentimentText = 'Нейтрально';
         }
+        
+        // Получаем цвет настроения с учетом темы
+        const sentimentColor = getResultSentimentColor(item.sentiment);
         
         // Форматируем дату
         const date = item.metadata?.date || item.created_at?.substring(0, 10) || 'Неизвестно';

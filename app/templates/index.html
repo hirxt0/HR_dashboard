@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Analytics Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>HR Analytics Dashboard</h1>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Администратор</span>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search" placeholder="Введите тег для поиска (например: ИИ, HR, Финтех)...">
+                <button class="btn-search" onclick="runSearch()">
+                    <i class="fas fa-search"></i> Поиск
+                </button>
+            </div>
+            <div class="search-stats">
+                <div class="stat-card">
+                    <i class="fas fa-newspaper"></i>
+                    <div>
+                        <h3 id="total-news">0</h3>
+                        <p>Всего новостей</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-tags"></i>
+                    <div>
+                        <h3 id="total-tags">0</h3>
+                        <p>Уникальных тегов</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <h3 id="total-signals">0</h3>
+                        <p>Активных сигналов</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column: Signals -->
+            <section class="signals-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-circle"></i> Активные сигналы</h2>
+                    <span class="badge" id="signals-count">0</span>
+                </div>
+                <div class="signals-list" id="signals-container">
+                    <!-- Сигналы будут здесь -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка сигналов...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Search Results -->
+            <section class="results-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> Результаты поиска</h2>
+                </div>
+                <div class="results-list" id="results">
+                    <div class="placeholder">
+                        <i class="fas fa-search"></i>
+                        <h3>Начните поиск</h3>
+                        <p>Введите тег в поле поиска выше, чтобы увидеть результаты</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tags Cloud -->
+        <section class="tags-section">
+            <div class="section-header">
+                <h2><i class="fas fa-tags"></i> Популярные теги</h2>
+            </div>
+            <div class="tags-cloud" id="tags-cloud">
+                <!-- Теги будут здесь -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>HR Analytics Dashboard v1.0 • Обновлено: <span id="update-time">сегодня</span></p>
+            <p class="hint">Используется GigaChat AI для анализа текста</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

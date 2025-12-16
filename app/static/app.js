@@ -16,12 +16,26 @@ const elements = {
     updateTime: document.getElementById('update-time')
 };
 
+// Кэш для популярных тегов
+let popularTagsCache = [];
+let suggestionsContainer = null;
+let debounceTimer = null;
+
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
     loadStats();
     loadTagsCloud();
     loadRecentNews();
     setupEventListeners();
+    
+    // Закрытие автодополнения при клике вне
+    document.addEventListener('click', function(e) {
+        if (suggestionsContainer && 
+            !suggestionsContainer.contains(e.target) && 
+            e.target !== elements.searchInput) {
+            hideSuggestions();
+        }
+    });
 });
 
 // Настройка обработчиков событий
@@ -29,21 +43,143 @@ function setupEventListeners() {
     // Поиск по Enter
     elements.searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+            hideSuggestions();
             runSearch();
         }
     });
     
     // Поиск по клику
-    elements.btnSearch.addEventListener('click', runSearch);
+    elements.btnSearch.addEventListener('click', function() {
+        hideSuggestions();
+        runSearch();
+    });
+    
+    // Автодополнение с debounce
+    elements.searchInput.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        
+        if (this.value.trim().length === 0) {
+            hideSuggestions();
+            return;
+        }
+        
+        // Debounce для избежания слишком частых запросов
+        debounceTimer = setTimeout(() => {
+            if (this.value.length >= 2) {
+                suggestTags(this.value);
+            }
+        }, 300);
+    });
+    
+    // Закрытие автодополнения при нажатии Escape
+    elements.searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideSuggestions();
+        }
+    });
     
     // Быстрый поиск по тегам в облаке
     elements.tagsCloud.addEventListener('click', function(e) {
         if (e.target.classList.contains('tag-cloud')) {
             const tag = e.target.textContent;
             elements.searchInput.value = tag;
+            hideSuggestions();
             runSearch(tag);
         }
     });
+}
+
+// Автодополнение и предложение тегов
+async function suggestTags(input) {
+    if (input.trim().length < 2) {
+        hideSuggestions();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tags/suggest?q=${encodeURIComponent(input)}`);
+        const data = await response.json();
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+            showSuggestions(data.suggestions, input);
+        } else {
+            hideSuggestions();
+        }
+    } catch (error) {
+        console.error('Ошибка получения подсказок:', error);
+        hideSuggestions();
+    }
+}
+
+// Показать предложения
+function showSuggestions(suggestions, input) {
+    // Убираем старое автодополнение
+    hideSuggestions();
+    
+    // Создаем контейнер для подсказок
+    suggestionsContainer = document.createElement('div');
+    suggestionsContainer.className = 'suggestions-container';
+    
+    // Позиционируем под полем ввода
+    const inputRect = elements.searchInput.getBoundingClientRect();
+    suggestionsContainer.style.position = 'absolute';
+    suggestionsContainer.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
+    suggestionsContainer.style.left = `${inputRect.left + window.scrollX}px`;
+    suggestionsContainer.style.width = `${inputRect.width}px`;
+    suggestionsContainer.style.zIndex = '1000';
+    
+    // Добавляем каждую подсказку
+    suggestions.forEach((suggestion, index) => {
+        const suggestionEl = document.createElement('div');
+        suggestionEl.className = 'suggestion-item';
+        suggestionEl.dataset.tag = suggestion.tag;
+        
+        // Выделяем точные совпадения
+        const isExact = suggestion.is_exact;
+        const similarity = Math.round(suggestion.similarity * 100);
+        
+        suggestionEl.innerHTML = `
+            <div class="suggestion-content">
+                <span class="suggestion-tag ${isExact ? 'exact-match' : ''}">
+                    ${suggestion.tag}
+                </span>
+                <span class="suggestion-meta">
+                    ${suggestion.count ? `${suggestion.count} упоминаний` : ''}
+                    ${!isExact && similarity > 60 ? `<span class="similarity">${similarity}% совпадение</span>` : ''}
+                </span>
+            </div>
+            ${isExact ? '<i class="fas fa-check exact-icon"></i>' : '<i class="fas fa-arrow-right"></i>'}
+        `;
+        
+        // Обработчик клика
+        suggestionEl.addEventListener('click', () => {
+            elements.searchInput.value = suggestion.tag;
+            hideSuggestions();
+            runSearch(suggestion.tag);
+        });
+        
+        // Обработчик наведения
+        suggestionEl.addEventListener('mouseenter', () => {
+            suggestionEl.classList.add('hovered');
+        });
+        
+        suggestionEl.addEventListener('mouseleave', () => {
+            suggestionEl.classList.remove('hovered');
+        });
+        
+        suggestionsContainer.appendChild(suggestionEl);
+    });
+    
+    // Добавляем контейнер в DOM
+    document.body.appendChild(suggestionsContainer);
+}
+
+// Скрыть предложения
+function hideSuggestions() {
+    if (suggestionsContainer) {
+        suggestionsContainer.remove();
+        suggestionsContainer = null;
+    }
 }
 
 // Загрузка статистики
@@ -73,6 +209,9 @@ async function loadTagsCloud() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/stats`);
         const data = await response.json();
+        
+        // Сохраняем популярные теги в кэш
+        popularTagsCache = data.popular_tags || [];
         
         // Очищаем облако тегов
         elements.tagsCloud.innerHTML = '';
@@ -180,7 +319,7 @@ async function runSearch(tag = null) {
     `;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search?tag=${encodeURIComponent(searchTag)}`);
+        const response = await fetch(`${API_BASE_URL}/api/search?tag=${encodeURIComponent(searchTag)}&smart=true`);
         const data = await response.json();
         
         if (data.error) {
@@ -188,7 +327,12 @@ async function runSearch(tag = null) {
             return;
         }
         
-        displayResults(data.results, searchTag, data.count);
+        // Показываем подсказку, если был исправлен тег
+        if (data.was_corrected && data.corrected_tag !== searchTag.toLowerCase()) {
+            showMessage(`Показаны результаты для тега: <strong>"${data.corrected_tag}"</strong> (исправлено с "${searchTag}")`, 'info');
+        }
+        
+        displayResults(data.results, data.corrected_tag || searchTag, data.count);
         
     } catch (error) {
         console.error('Ошибка поиска:', error);
@@ -210,7 +354,12 @@ function displayResults(results, searchTag, count) {
         return;
     }
     
-    let html = '';
+    let html = `
+        <div class="search-info">
+            <h3>Найдено результатов: ${count}</h3>
+            <p>По тегу: <span class="search-tag">${searchTag}</span></p>
+        </div>
+    `;
     
     results.forEach(item => {
         // Определяем иконку настроения
@@ -243,7 +392,9 @@ function displayResults(results, searchTag, count) {
                 ${item.explanation ? `<p class="hint" style="margin-bottom: 10px;"><i>${item.explanation}</i></p>` : ''}
                 <div class="news-tags">
                     ${item.llm_tags.map(tag => `
-                        <span class="tag">${tag}</span>
+                        <span class="tag ${tag.toLowerCase() === searchTag.toLowerCase() ? 'tag-highlight' : ''}">
+                            ${tag}
+                        </span>
                     `).join('')}
                 </div>
             </div>
@@ -278,7 +429,7 @@ function showMessage(message, type = 'info') {
     const color = type === 'warning' ? 'var(--warning)' : 'var(--info)';
     
     elements.resultsContainer.innerHTML = `
-        <div class="placeholder">
+        <div class="placeholder" style="margin-bottom: 20px;">
             <i class="${icon}" style="color: ${color};"></i>
             <p>${message}</p>
         </div>

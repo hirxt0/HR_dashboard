@@ -113,7 +113,7 @@ from telegram_parser import fetch_all_channels, messages_as_chunks, GigaChatFilt
   "category": "AI_ML_DS",
   "importance": "HIGH",
   "tonality": "POSITIVE",
-  "justification": "Новость о запуске новой программы
+  "justification": "Новость о запуске новой программы"
 ```
 
 - Минимальный случай, если гига чат не справился

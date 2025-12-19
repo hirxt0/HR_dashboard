@@ -1534,3 +1534,164 @@ body.dark-theme .sentiment-badge.neutral {
 body.dark-theme .news-container .sentiment-badge i {
     color: inherit !important;
 }
+
+/* Добавь в конец styles.css */
+
+/* Стили для деталей сигналов */
+.signal-description {
+    color: var(--gray);
+    font-size: 14px;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.signal-sentiment {
+    margin: 15px 0;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.sentiment-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.sentiment-bar div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    transition: width 0.3s ease;
+}
+
+.sentiment-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray);
+}
+
+.sentiment-labels span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.signal-recommendations {
+    background: rgba(33, 160, 56, 0.05);
+    border-left: 3px solid var(--primary);
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+}
+
+.signal-recommendations strong {
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.signal-recommendations ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.signal-recommendations li {
+    margin-bottom: 3px;
+    color: var(--dark);
+}
+
+body.dark-theme .signal-recommendations li {
+    color: var(--dark-text);
+}
+
+.signal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.signal-date {
+    font-size: 12px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-small {
+    background: rgba(33, 160, 56, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(33, 160, 56, 0.2);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-small:hover {
+    background: rgba(33, 160, 56, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Улучшения для темной темы */
+body.dark-theme .signal-sentiment {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .signal-recommendations {
+    background: rgba(33, 160, 56, 0.1);
+    border-left-color: var(--sber-green);
+}
+
+body.dark-theme .btn-small {
+    background: rgba(33, 160, 56, 0.15);
+    color: var(--sber-green);
+    border-color: rgba(33, 160, 56, 0.3);
+}
+
+body.dark-theme .btn-small:hover {
+    background: rgba(33, 160, 56, 0.25);
+}
+
+body.dark-theme .signal-footer {
+    border-color: var(--dark-border);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .signal-sentiment {
+        padding: 8px;
+    }
+    
+    .sentiment-bar {
+        height: 20px;
+    }
+    
+    .sentiment-bar div {
+        font-size: 9px;
+    }
+    
+    .signal-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+

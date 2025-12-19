@@ -1,3 +1,4 @@
+
 // ui.js - Все функции отображения UI
 
 import { NEWS_PER_PAGE, elements, state } from './config.js';
@@ -220,32 +221,119 @@ export function displaySignals(signals) {
         const trendIcon = signal.trend === 'up' ? 'fas fa-arrow-up' : 
                          signal.trend === 'down' ? 'fas fa-arrow-down' : 
                          'fas fa-minus';
-        const trendColor = signal.trend === 'up' ? 'color: var(--success);' : 
-                          signal.trend === 'down' ? 'color: var(--danger);' : 
-                          'color: var(--gray);';
+        
+        // Цвета для трендов
+        let trendColor;
+        if (typeClass === 'problem') {
+            trendColor = signal.trend === 'up' ? 'color: var(--danger); font-weight: bold;' : 
+                        signal.trend === 'down' ? 'color: var(--success);' : 
+                        'color: var(--gray);';
+        } else if (typeClass === 'opportunity') {
+            trendColor = signal.trend === 'up' ? 'color: var(--success); font-weight: bold;' : 
+                        signal.trend === 'down' ? 'color: var(--warning);' : 
+                        'color: var(--gray);';
+        } else {
+            trendColor = signal.trend === 'up' ? 'color: var(--info);' : 
+                        signal.trend === 'down' ? 'color: var(--gray);' : 
+                        'color: var(--gray);';
+        }
+        
+        // Иконка в зависимости от типа сигнала
+        let typeIcon = icon;
+        let typeText = 'Тренд';
+        
+        if (typeClass === 'problem') {
+            typeText = 'Проблема';
+            if (signal.details?.signal_type === 'growing_problem') {
+                typeIcon = 'fas fa-fire';
+                typeText = 'Нарастающая проблема';
+            } else if (signal.details?.signal_type === 'new_problem') {
+                typeIcon = 'fas fa-bolt';
+                typeText = 'Новая проблема';
+            }
+        } else if (typeClass === 'opportunity') {
+            typeText = 'Возможность';
+            if (signal.details?.signal_type === 'growing_opportunity') {
+                typeIcon = 'fas fa-rocket';
+                typeText = 'Растущая возможность';
+            } else if (signal.details?.signal_type === 'new_opportunity') {
+                typeIcon = 'fas fa-star';
+                typeText = 'Новая возможность';
+            }
+        } else if (typeClass === 'early_trend') {
+            if (signal.details?.signal_type === 'new_trend') {
+                typeIcon = 'fas fa-eye';
+                typeText = 'Новый тренд';
+            } else if (signal.details?.signal_type === 'emerging_trend') {
+                typeIcon = 'fas fa-seedling';
+                typeText = 'Зарождающийся тренд';
+            }
+        }
         
         html += `
             <div class="signal-item ${typeClass}">
                 <div class="signal-header">
                     <div class="signal-tag">
-                        <i class="${icon}"></i> ${signal.title}
+                        <i class="${typeIcon}"></i> 
+                        <span class="signal-tag-text">${signal.tag || 'Без тега'}</span>
                     </div>
-                    <span class="signal-type ${typeClass}">${typeClass === 'problem' ? 'Проблема' : 
-                                                           typeClass === 'opportunity' ? 'Возможность' : 
-                                                           'Ранний тренд'}</span>
+                    <span class="signal-type ${typeClass}">
+                        ${typeText}
+                    </span>
                 </div>
-                <p>${signal.description}</p>
+                <p class="signal-description">${signal.description}</p>
+                
                 <div class="signal-stats">
-                    <div class="stat">
-                        <i class="fas fa-eye"></i>
+                    <div class="stat" title="Всего упоминаний">
+                        <i class="fas fa-hashtag"></i>
                         <span>${signal.mentions} упоминаний</span>
                     </div>
-                    <div class="stat">
+                    <div class="stat" title="Направление тренда">
                         <i class="fas fa-chart-line" style="${trendColor}"></i>
-                        <span>Тренд: ${signal.trend === 'up' ? 'растет' : 
-                                     signal.trend === 'down' ? 'падает' : 
-                                     'стабилен'}</span>
+                        <span>Тренд: ${signal.trend === 'up' ? 'растёт 📈' : 
+                                     signal.trend === 'down' ? 'падает 📉' : 
+                                     'стабилен ↔️'}</span>
                     </div>
+                </div>
+                
+                ${signal.sentiment ? `
+                <div class="signal-sentiment">
+                    <div class="sentiment-bar">
+                        <div class="sentiment-positive" style="width: ${signal.sentiment.positive || 0}%; background: var(--success);">
+                            ${signal.sentiment.positive || 0}% позитив
+                        </div>
+                        <div class="sentiment-negative" style="width: ${signal.sentiment.negative || 0}%; background: var(--danger);">
+                            ${signal.sentiment.negative || 0}% негатив
+                        </div>
+                        <div class="sentiment-neutral" style="width: ${signal.sentiment.neutral || 0}%; background: var(--gray);">
+                            ${signal.sentiment.neutral || 0}% нейтрал
+                        </div>
+                    </div>
+                    <div class="sentiment-labels">
+                        <span><i class="fas fa-smile" style="color: var(--success);"></i> ${signal.sentiment.positive || 0}%</span>
+                        <span><i class="fas fa-frown" style="color: var(--danger);"></i> ${signal.sentiment.negative || 0}%</span>
+                        <span><i class="fas fa-meh" style="color: var(--gray);"></i> ${signal.sentiment.neutral || 0}%</span>
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${signal.recommendations && signal.recommendations.length > 0 ? `
+                <div class="signal-recommendations">
+                    <strong><i class="fas fa-lightbulb"></i> Рекомендации:</strong>
+                    <ul>
+                        ${signal.recommendations.slice(0, 2).map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                <div class="signal-footer">
+                    <span class="signal-date" title="Период активности">
+                        <i class="far fa-calendar"></i>
+                        ${signal.first_seen || '?'} → ${signal.last_seen || '?'}
+                    </span>
+                    <button class="btn-small" onclick="window.runSearchGlobal('${signal.tag}')" title="Поиск по тегу">
+                        <i class="fas fa-search"></i> Поиск
+                    </button>
                 </div>
             </div>
         `;
@@ -376,3 +464,4 @@ export function showMessage(message, type = 'info') {
         </div>
     `;
 }
+

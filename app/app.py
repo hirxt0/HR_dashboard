@@ -12,6 +12,8 @@ from database import (
     get_news_paginated,
     get_all_tags
 )
+from datetime import datetime
+
 from tag_suggester import TagSuggester, find_best_match
 from stats import (
     get_dashboard_stats,
@@ -79,9 +81,20 @@ def get_stats():
     """Получение статистики"""
     try:
         stats = get_dashboard_stats()
+        
+        # Добавляем отладочную информацию
+        if 'signals' in stats:
+            print(f"📊 Получено сигналов: {len(stats['signals'])}")
+            for i, signal in enumerate(stats['signals']):
+                print(f"  Сигнал {i+1}: {signal.get('title', 'Без названия')}")
+                print(f"    Тег: {signal.get('tag', 'нет')}")
+                print(f"    Тип: {signal.get('type', 'нет')}")
+        
         return jsonify(stats)
     except Exception as e:
-        print(f"Ошибка в /api/stats: {e}")
+        print(f"❌ Ошибка в /api/stats: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/news', methods=['GET'])
@@ -169,10 +182,24 @@ def get_sentiment_dist():
         print(f"Ошибка получения распределения: {e}")
         return jsonify({'distribution': {}})
 
+@app.route('/api/trends/signals', methods=['GET'])
+def get_trend_signals_api():
+    """Получение активных сигналов из анализатора трендов"""
+    try:
+        from trend_analyzer import get_trend_signals
+        signals = get_trend_signals()
+        return jsonify({
+            'signals': signals,
+            'count': len(signals),
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'signals': []}), 500
+
 if __name__ == '__main__':
     # Инициализируем БД
-    init_database()
-    create_sample_data()
+    """init_database()
+    create_sample_data()"""
     
     # Инициализируем TagSuggester
     tag_suggester.initialize()
